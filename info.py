@@ -73,8 +73,8 @@ FORCESUB_IMG = environ.get('FORCESUB_IMG', 'https://i.ibb.co/ZNC1Hnb/ad3f2c88a8f
 REFER_PICS = (environ.get("REFER_PICS", "https://envs.sh/PSI.jpg")).split() 
 PAYPICS = (environ.get('PAYPICS', 'https://graph.org/file/22f632ce2f54cb2f5fe86-dade858bfce22ab65c.jpg')).split()
 SUBSCRIPTION = (environ.get('SUBSCRIPTION', 'https://graph.org/file/9f3f47c690bbcc67633c2.jpg'))
-REACTIONS = ["ðŸ‘€", "ðŸ˜±", "ðŸ”¥", "ðŸ˜", "ðŸŽ‰", "ðŸ¥°", "ðŸ˜‡", "âš¡"]
-#---------------------------------------------------------------
+REACTIONS = ["👀", "😱", "🔥", "😍", "🎉", "🥰", "😇", "⚡"]
+#--------------------------------------------------------------
 #---------------------------------------------------------------
 #---------------------------------------------------------------
 FILE_AUTO_DEL_TIMER = int(environ.get('FILE_AUTO_DEL_TIMER', '600'))
@@ -130,4 +130,3 @@ SETTINGS = {
             'api_three': SHORTENER_API3,
             'third_verify_time': THREE_VERIFY_GAP
 }
-
