@@ -120,7 +120,7 @@ User - {}"""
     FILE_CAPTION = """<b>{file_name}\n\n𝖩𝗈𝗂𝗇➥ 「<a href="https://t.me/ssdbackup">SSD Backup </a>」</b>"""
     
 
-    ALRT_TXT = """ᴊᴀʟᴅɪ ʏᴇʜᴀ sᴇ ʜᴀᴛᴏ !"""
+    ALRT_TXT = """𝑷𝒍𝒆𝒂𝒔𝒆 𝑺𝒆𝒂𝒓𝒄𝒉 𝑨𝒈𝒂𝒊𝒏 𝒊𝒏 𝑮𝒓𝒐𝒖𝒑 !"""
 
     OLD_ALRT_TXT = """ʏᴏᴜ ᴀʀᴇ ᴜsɪɴɢ ᴍʏ ᴏʟᴅ ᴍᴇssᴀɢᴇs..sᴇɴᴅ ᴀ ɴᴇᴡ ʀᴇǫᴜᴇsᴛ.."""
 
@@ -260,7 +260,7 @@ User - {}"""
     
 <blockquote>🎖️ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʀᴇᴍɪᴜᴍ ᴘʟᴀɴꜱ :</blockquote>
 
- <code>sureshjaat33772@okaxis</code> [ᴛᴀᴘ ᴛᴏ ᴄᴏᴘʏ]
+ <code>UPI-Id- sureshjaat33772@okaxis</code> [ᴛᴀᴘ ᴛᴏ ᴄᴏᴘʏ]
  
 ⛽️ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ: /myplan
 
