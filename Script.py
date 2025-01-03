@@ -47,35 +47,20 @@ class script(object):
 ʙᴜᴛ ɪ ᴄᴀɴ'ᴛ sᴇɴᴅ ʜᴇʀᴇ 🤞🏻
 ᴘʟᴇᴀsᴇ ᴊᴏɪɴ ᴏᴜʀ ʀᴇǫᴜᴇsᴛ ɢʀᴏᴜᴘ ᴛᴏ ɢᴇᴛ ✨</b>'''
 
-  from pyrogram import Client, filters
-
-app = Client("my_bot")
-
-CHANNELS = """
+  from CHANNELS = """
 <u>ᴏᴜʀ ᴀʟʟ ɢʀᴏᴜᴘꜱ ᴀɴᴅ ᴄʜᴀɴɴᴇʟꜱ</u> 
 
 ▫ ᴀʟʟ ʟᴀᴛᴇꜱᴛ ᴀɴᴅ ᴏʟᴅ ᴍᴏᴠɪᴇꜱ & ꜱᴇʀɪᴇꜱ.
 ▫ ᴀʟʟ ʟᴀɴɢᴜᴀɢᴇꜱ ᴍᴏᴠɪᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ.
 ▫ ᴀʟᴡᴀʏꜱ ᴀᴅᴍɪɴ ꜱᴜᴘᴘᴏʀᴛ.
-▫ 𝟸𝟺x𝟽 ꜱᴇʀᴠɪᴄᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ.
-"""
+▫ 𝟸𝟺x𝟽 ꜱᴇʀᴠɪᴄᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ."""
 
-LOGO = """
-BOT WORKING PROPERLY 🔥
-"""
+    LOGO = """
 
-@app.on_message(filters.command("channels"))
-async def show_channels(client, message):
-    await message.reply(CHANNELS, parse_mode="html")
-
-@app.on_message(filters.command("logo"))
-async def show_logo(client, message):
-    await message.reply(LOGO)
-
-app.run()  
+BOT WORKING PROPERLY 🔥"""
+ 
     
 
-    
     RESTART_TXT = """
 <b>Bᴏᴛ Rᴇsᴛᴀʀᴛᴇᴅ !
 
