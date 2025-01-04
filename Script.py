@@ -260,7 +260,13 @@ User - {}"""
     
 <blockquote>🎖️ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʀᴇᴍɪᴜᴍ ᴘʟᴀɴꜱ :</blockquote>
 
- <code>UPI-Id- sureshjaat33772@okaxis</code> [ᴛᴀᴘ ᴛᴏ ᴄᴏᴘʏ]
+
+10 ʀᴜᴘᴇᴇ ᴘᴇʀ 𝒘𝒆𝒆𝒌 👻
+39 ʀᴜᴘᴇᴇ𝒔 ғᴏʀ ᴏɴᴇ ᴍᴏɴᴛʜ 😚
+79 ʀᴜᴘᴇᴇ𝒔 ғᴏʀ ᴛᴡᴏ ᴍᴏɴᴛʜ𝒔 😗
+
+[🅄🄿🄸 🆔 👇]
+ <code>sureshjaat33772@okaxis</code> [ᴛᴀᴘ ᴛᴏ ᴄᴏᴘʏ]
  
 ⛽️ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ: /myplan
 
