@@ -1028,16 +1028,8 @@ async def verifyoff(bot, message):
     if not await is_check_admin(bot, grpid, message.from_user.id):  # Changed client to bot
         return await message.reply_text('<b>You are not an admin in this group!</b>')
     
-    try:
-        input_id = message.command[1]
-    except IndexError:
-        return await message.reply_text("Please provide the Verify ID along with the command.\nUsage: `/verifyoff {id}`")
-    
-    if grpid not in verification_ids or verification_ids[grpid] != input_id:
-        return await message.reply_text("Invalid Verify ID! Please contact the admin for the correct ID.")
-    
+    # No need to check for input_id anymore, just disable verification
     await save_group_settings(grpid, 'is_verify', False)
-    del verification_ids[grpid]
     return await message.reply_text("Verification successfully disabled.")
 
 
