@@ -1116,14 +1116,6 @@ async def delete_duplicates(client, message):
     else:
         await message.reply("कोई डुप्लिकेट फाइल्स नहीं मिली।")
 
-# Feature 3: Logging and Monitoring
-import logging
-logging.basicConfig(filename='bot_activity.log', level=logging.INFO)
-
-@Client.on_message(filters.group)
-async def log_message(client, message):
-    logging.info(f"Group: {message.chat.title} | User: {message.from_user.username} | Message: {message.text}")
-    await message.reply("आपका मैसेज लॉग किया गया।")
 
 # Feature 4: Poll
 @Client.on_message(filters.command("poll"))
