@@ -1,108 +1,107 @@
 from pyrogram import Client, filters
-import datetime
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
+import asyncio
 import time
 from database.users_chats_db import db
+from utils import temp, get_readable_time
 from info import ADMINS
-from utils import users_broadcast, groups_broadcast, temp, get_readable_time
-import asyncio
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup 
 
 lock = asyncio.Lock()
 
+# Cancel Broadcast
 @Client.on_callback_query(filters.regex(r'^broadcast_cancel'))
 async def broadcast_cancel(bot, query):
     _, ident = query.data.split("#")
     if ident == 'users':
-        await query.message.edit("ᴛʀʏɪɴɢ ᴛᴏ ᴄᴀɴᴄᴇʟ ᴜsᴇʀs ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ...")
         temp.USERS_CANCEL = True
+        await query.message.edit("❌ Users Broadcast Cancelled!")
     elif ident == 'groups':
         temp.GROUPS_CANCEL = True
-        await query.message.edit("ᴛʀʏɪɴɢ ᴛᴏ ᴄᴀɴᴄᴇʟ ɢʀᴏᴜᴘs ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ...")
-       
+        await query.message.edit("❌ Groups Broadcast Cancelled!")
+
+# Broadcast to Users
 @Client.on_message(filters.command("broadcast") & filters.user(ADMINS) & filters.reply)
 async def broadcast_users(bot, message):
     if lock.locked():
-        return await message.reply('Currently broadcast processing, Wait for complete.')
+        return await message.reply("🔒 A broadcast is already in progress. Please wait.")
 
-    p = await message.reply('<b>Do you want pin this message in users?</b>', reply_markup=ReplyKeyboardMarkup([['Yes', 'No']], one_time_keyboard=True, resize_keyboard=True))
-    msg = await bot.listen(chat_id=message.chat.id, user_id=message.from_user.id)
-    if msg.text == 'Yes':
-        is_pin = True
-    elif msg.text == 'No':
-        is_pin = False
-    else:
-        await p.delete()
-        return await message.reply_text('Wrong Response!')
+    p = await message.reply("Do you want to pin this message for users?", 
+                             reply_markup=ReplyKeyboardMarkup([['Yes', 'No']], one_time_keyboard=True, resize_keyboard=True))
+    msg = await bot.listen(message.chat.id, message.from_user.id)
+    is_pin = msg.text.lower() == 'yes'
     await p.delete()
+
     users = await db.get_all_users()
     b_msg = message.reply_to_message
-    b_sts = await message.reply_text(text='<b>ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ ʏᴏᴜʀ ᴍᴇssᴀɢᴇs ᴛᴏ ᴜsᴇʀs ⌛️</b>')
+    b_sts = await message.reply_text("⏳ Starting broadcast to users...")
+
     start_time = time.time()
     total_users = await db.total_users_count()
-    done = 0
-    blocked = 0
-    deleted = 0
-    failed = 0
-    success = 0
+    done, success, failed = 0, 0, 0
 
     async with lock:
         async for user in users:
-            time_taken = get_readable_time(time.time()-start_time)
             if temp.USERS_CANCEL:
                 temp.USERS_CANCEL = False
-                await b_sts.edit(f"Users broadcast Cancelled!\nCompleted in {time_taken}\n\nTotal Users: <code>{total_users}</code>\nCompleted: <code>{done} / {total_users}</code>\nSuccess: <code>{success}</code>")
+                await b_sts.edit(f"❌ Users broadcast cancelled!\nCompleted: {done}/{total_users}")
                 return
-            sts = await users_broadcast(int(user['id']), b_msg, is_pin)
-            if sts == 'Success':
+
+            try:
+                await bot.send_message(user['id'], b_msg.text, disable_notification=True)
+                if is_pin:
+                    await bot.pin_chat_message(user['id'], b_msg.id)
                 success += 1
-            elif sts == 'Error':
+            except Exception:
                 failed += 1
             done += 1
-            if not done % 20:
-                btn = [[
-                    InlineKeyboardButton('CANCEL', callback_data=f'broadcast_cancel#users')
-                ]]
-                await b_sts.edit(f"Users broadcast in progress...\n\nTotal Users: <code>{total_users}</code>\nCompleted: <code>{done} / {total_users}</code>\nSuccess: <code>{success}</code>", reply_markup=InlineKeyboardMarkup(btn))
-        await b_sts.edit(f"Users broadcast completed.\nCompleted in {time_taken}\n\nTotal Users: <code>{total_users}</code>\nCompleted: <code>{done} / {total_users}</code>\nSuccess: <code>{success}</code>")
 
+            # Update Status Every 20 Users
+            if done % 20 == 0:
+                btn = [[InlineKeyboardButton("CANCEL", callback_data="broadcast_cancel#users")]]
+                await b_sts.edit(f"📤 Broadcasting to users...\nCompleted: {done}/{total_users}\nSuccess: {success}\nFailed: {failed}", 
+                                 reply_markup=InlineKeyboardMarkup(btn))
+                
+        time_taken = get_readable_time(time.time() - start_time)
+        await b_sts.edit(f"✅ Users broadcast completed!\nTime: {time_taken}\nTotal: {total_users}\nSuccess: {success}\nFailed: {failed}")
+
+# Broadcast to Groups
 @Client.on_message(filters.command("grp_broadcast") & filters.user(ADMINS) & filters.reply)
-async def broadcast_group(bot, message):
-    p = await message.reply('<b>Do you want pin this message in groups?</b>', reply_markup=ReplyKeyboardMarkup([['Yes', 'No']], one_time_keyboard=True, resize_keyboard=True))
-    msg = await bot.listen(chat_id=message.chat.id, user_id=message.from_user.id)
-    if msg.text == 'Yes':
-        is_pin = True
-    elif msg.text == 'No':
-        is_pin = False
-    else:
-        await p.delete()
-        return await message.reply_text('Wrong Response!')
+async def broadcast_groups(bot, message):
+    p = await message.reply("Do you want to pin this message for groups?", 
+                             reply_markup=ReplyKeyboardMarkup([['Yes', 'No']], one_time_keyboard=True, resize_keyboard=True))
+    msg = await bot.listen(message.chat.id, message.from_user.id)
+    is_pin = msg.text.lower() == 'yes'
     await p.delete()
-    chats = await db.get_all_chats()
+
+    groups = await db.get_all_chats()
     b_msg = message.reply_to_message
-    b_sts = await message.reply_text(text='<b>ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ ʏᴏᴜʀ ᴍᴇssᴀɢᴇs ᴛᴏ ɢʀᴏᴜᴘs ⏳</b>')
+    b_sts = await message.reply_text("⏳ Starting broadcast to groups...")
+
     start_time = time.time()
-    total_chats = await db.total_chat_count()
-    done = 0
-    failed = 0
-    success = 0
-    
+    total_groups = await db.total_chat_count()
+    done, success, failed = 0, 0, 0
+
     async with lock:
-        async for chat in chats:
-            time_taken = get_readable_time(time.time()-start_time)
+        async for group in groups:
             if temp.GROUPS_CANCEL:
                 temp.GROUPS_CANCEL = False
-                await b_sts.edit(f"Groups broadcast Cancelled!\nCompleted in {time_taken}\n\nTotal Groups: <code>{total_chats}</code>\nCompleted: <code>{done} / {total_chats}</code>\nSuccess: <code>{success}</code>\nFailed: <code>{failed}</code>")
+                await b_sts.edit(f"❌ Groups broadcast cancelled!\nCompleted: {done}/{total_groups}")
                 return
-            sts = await groups_broadcast(int(chat['id']), b_msg, is_pin)
-            if sts == 'Success':
+
+            try:
+                await bot.send_message(group['id'], b_msg.text, disable_notification=True)
+                if is_pin:
+                    await bot.pin_chat_message(group['id'], b_msg.id)
                 success += 1
-            elif sts == 'Error':
+            except Exception:
                 failed += 1
             done += 1
-            if not done % 20:
-                btn = [[
-                    InlineKeyboardButton('CANCEL', callback_data=f'broadcast_cancel#groups')
-                ]]
-                await b_sts.edit(f"Groups groadcast in progress...\n\nTotal Groups: <code>{total_chats}</code>\nCompleted: <code>{done} / {total_chats}</code>\nSuccess: <code>{success}</code>\nFailed: <code>{failed}</code>", reply_markup=InlineKeyboardMarkup(btn))    
-        await b_sts.edit(f"Groups broadcast completed.\nCompleted in {time_taken}\n\nTotal Groups: <code>{total_chats}</code>\nCompleted: <code>{done} / {total_chats}</code>\nSuccess: <code>{success}</code>\nFailed: <code>{failed}</code>")
 
+            # Update Status Every 20 Groups
+            if done % 20 == 0:
+                btn = [[InlineKeyboardButton("CANCEL", callback_data="broadcast_cancel#groups")]]
+                await b_sts.edit(f"📤 Broadcasting to groups...\nCompleted: {done}/{total_groups}\nSuccess: {success}\nFailed: {failed}", 
+                                 reply_markup=InlineKeyboardMarkup(btn))
+                
+        time_taken = get_readable_time(time.time() - start_time)
+        await b_sts.edit(f"✅ Groups broadcast completed!\nTime: {time_taken}\nTotal: {total_groups}\nSuccess: {success}\nFailed: {failed}")
