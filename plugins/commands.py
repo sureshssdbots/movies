@@ -1059,31 +1059,7 @@ async def verifyon(bot, message):
     return await message.reply_text("Verification successfully enabled.")
 
 
-# Feature 1: User Management
-@Client.on_message(filters.command("set_role") & filters.group)
-async def set_role(client, message):
-    if message.from_user.id not in ADMINS:
-        await message.reply("सिर्फ एडमिन यह कमांड उपयोग कर सकते हैं।")
-        return
-    try:
-        user_id = int(message.command[1])
-        role = message.command[2].lower()
-        if role == "admin":
-            await client.promote_chat_member(
-                chat_id=message.chat.id,
-                user_id=user_id,
-                permissions=ChatPermissions(can_manage_chat=True, can_delete_messages=True)
-            )
-            await message.reply(f"उपयोगकर्ता {user_id} को एडमिन बनाया गया।")
-        elif role == "member":
-            await client.restrict_chat_member(
-                chat_id=message.chat.id,
-                user_id=user_id,
-                permissions=ChatPermissions(can_send_messages=True)
-            )
-            await message.reply(f"उपयोगकर्ता {user_id} को सामान्य सदस्य बनाया गया।")
-    except Exception as e:
-        await message.reply(f"त्रुटि: {e}")
+
 
 # Feature 2: Duplicate File Detection
 from pyrogram import Client, filters
@@ -1131,17 +1107,6 @@ async def create_poll(client, message):
     except Exception as e:
         await message.reply(f"त्रुटि: {e}")
 
-# Feature 5: Reminder
-import asyncio
-
-@Client.on_message(filters.command("remind"))
-async def set_reminder(client, message):
-    try:
-        time, *text = message.text.split(" ", 2)
-        await asyncio.sleep(int(time) * 60)
-        await message.reply(" ".join(text))
-    except ValueError:
-        await message.reply("कृपया सही फॉर्मेट में समय दें। उदाहरण: /remind 5 Meeting")
 
 # Feature 7: Spam Detection
 @Client.on_message(filters.text & filters.group)
