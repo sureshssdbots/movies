@@ -1086,18 +1086,35 @@ async def set_role(client, message):
         await message.reply(f"त्रुटि: {e}")
 
 # Feature 2: Duplicate File Detection
+from pyrogram import Client, filters
+
+# Admin ID (यह ID आपको पहले से जाननी होगी, इसे कस्टम तरीके से सेट कर सकते हैं)
+ADMIN_ID = 6151975257  # उदाहरण के लिए, इसे अपने असली admin ID से बदलें
+
 @Client.on_message(filters.command("delete_duplicate") & filters.group)
 async def delete_duplicates(client, message):
+    # चेक करें कि संदेश भेजने वाला उपयोगकर्ता admin है या नहीं
+    if message.from_user.id != ADMIN_ID:
+        await message.reply("आपके पास इस कमांड को चलाने का अधिकार नहीं है।")
+        return
+
+    # डुप्लिकेट मीडिया को ढूंढने और डिलीट करने का कोड
     duplicates = await Media.collection.aggregate([
         {"$group": {"_id": "$file_name", "count": {"$sum": 1}, "docs": {"$push": "$_id"}}},
         {"$match": {"count": {"$gt": 1}}}
     ])
+    
     count = 0
     for duplicate in duplicates:
         for file_id in duplicate["docs"][1:]:
             await Media.collection.delete_one({"_id": file_id})
             count += 1
-    await message.reply(f"{count} डुप्लिकेट फाइल्स हटाई गईं।")
+    
+    # यदि कोई डुप्लिकेट डिलीट हुआ है तो रिपोर्ट करें
+    if count > 0:
+        await message.reply(f"कुल {count} डुप्लिकेट फाइल्स हटा दी गई हैं।")
+    else:
+        await message.reply("कोई डुप्लिकेट फाइल्स नहीं मिली।")
 
 # Feature 3: Logging and Monitoring
 import logging
