@@ -1160,3 +1160,4 @@ async def detect_spam(client, message):
     if "http://" in message.text or "https://" in message.text:
         await message.delete()
         await message.reply("स्पैम मैसेज हटा दिया गया!")
+        
