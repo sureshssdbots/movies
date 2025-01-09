@@ -29,13 +29,31 @@ class Media(Document):
 
 async def get_files_db_size():
     return (await mydb.command("dbstats"))['dataSize']
-    
+
+async def delete_duplicate_file(file_name):
+    """
+    Deletes duplicate movie entry based on file name.
+    """
+    try:
+        existing_file = await Media.find_one({'file_name': file_name})
+        if existing_file:
+            await existing_file.delete()
+            print(f"Duplicate file '{file_name}' deleted.")
+            return True  # Duplicate deleted
+    except Exception as e:
+        print(f"Error deleting duplicate file: {e}")
+    return False  # No duplicate found
+
 async def save_file(media):
     """Save file in database"""
 
     # TODO: Find better way to get same file_id for same media to avoid duplicates
     file_id, file_ref = unpack_new_file_id(media.file_id)
     file_name = re.sub(r"(_|\-|\.|\+)", " ", str(media.file_name))
+    
+    # Delete duplicate file if exists
+    await delete_duplicate_file(file_name)
+    
     try:
         file = Media(
             file_id=file_id,
@@ -147,4 +165,3 @@ def unpack_new_file_id(new_file_id):
     )
     file_ref = encode_file_ref(decoded.file_reference)
     return file_id, file_ref
-    
