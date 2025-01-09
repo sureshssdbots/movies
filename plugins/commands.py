@@ -1134,26 +1134,6 @@ async def set_reminder(client, message):
     except ValueError:
         await message.reply("कृपया सही फॉर्मेट में समय दें। उदाहरण: /remind 5 Meeting")
 
-# Feature 6: Language Support
-LANG_SETTINGS = {}
-
-@Client.on_message(filters.command("set_language"))
-async def set_language(client, message):
-    lang = message.command[1].lower()
-    if lang == "hindi":
-        LANG_SETTINGS[message.chat.id] = "hi"
-    else:
-        LANG_SETTINGS[message.chat.id] = "en"
-    await message.reply(f"भाषा {lang} में सेट कर दी गई।")
-
-@Client.on_message(filters.text)
-async def translate_message(client, message):
-    lang = LANG_SETTINGS.get(message.chat.id, "en")
-    if lang == "hi":
-        await message.reply("यह हिंदी में है।")
-    else:
-        await message.reply("This is in English.")
-
 # Feature 7: Spam Detection
 @Client.on_message(filters.text & filters.group)
 async def detect_spam(client, message):
