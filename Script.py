@@ -311,6 +311,8 @@ User - {}"""
 --------------Broadcast--------------
 ➩ /broadcast - Broadcast a message to all users
 ➩ /grp_broadcast - Broadcast a message to all connected groups
+➩ /set_role {user_id}- add a admin 
+➩ /delete_duplicate - delete all dublicet file 
 
 </blockquote></b>"""
     
