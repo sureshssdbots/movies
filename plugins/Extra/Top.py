@@ -1,24 +1,83 @@
 from pyrogram import Client, filters
-from info import ADMINS, DATABASE_URI
 from pyrogram.types import ReplyKeyboardMarkup
+from info import ADMINS, DATABASE_URI
 import asyncio
 from database.topdb import JsTopDB
 
 movie_series_db = JsTopDB(DATABASE_URI)
-    
 
-# top trending commands
+# set list of movie and series names (add/remove/update)
 @Client.on_message(filters.command("setlist") & filters.private & filters.user(ADMINS))
 async def set_movie_series_names_command(client, message):
-  
+    try:
+        command, action, *names = message.text.split(maxsplit=2)
+    except ValueError:
+        await message.reply("Please provide valid parameters for the command.")
+        return
+
+    if action == "remove":
+        name_to_remove = names[0]
+        await movie_series_db.remove_movie_series(name_to_remove)
+        await message.reply(f"The movie/series {name_to_remove} has been removed.")
+    elif action == "update":
+        old_name, new_name = names
+        await movie_series_db.update_movie_series(old_name, new_name)
+        await message.reply(f"The movie/series {old_name} has been updated to {new_name}.")
+    else:
+        # existing logic for setting new names
+        names_string = ", ".join(names)
+        await movie_series_db.set_movie_series_names(names_string, 1)
+        await message.reply(f"The movie/series list has been updated successfully.")
+
+# fetch movie and series names based on rank
+@Client.on_message(filters.command("trendlist"))
+async def get_movie_series_names_command(client, message):
+    current_names = await movie_series_db.get_movie_series_names_sorted_by_rank()
+
+    if current_names:
+        response = "<b><u>Top Trending List (Based on Ranking):</u></b>\n"
+        for i, name in enumerate(current_names, start=1):
+            response += f"{i}. {name['name']} - {name['points']} points\n"
+        await message.reply(response.strip())
+    else:
+        await message.reply("The list of top trending movies/series is empty ❌")
+
+# clear movie and series names
+@Client.on_message(filters.command("clearlist") & filters.private & filters.user(ADMINS))
+async def clear_movie_series_names_command(client, message):
+    await movie_series_db.clear_movie_series_names(1)
+    await message.reply("The top trending list has been cleared successfully ✅")
+
+# show the top trending movies/series with pagination (showing first 5 results)
+@Client.on_message(filters.command("trend"))
+async def trending_command(client, message):
+    movie_series_names = await movie_series_db.get_movie_series_names_sorted_by_rank()
+    
+    if not movie_series_names:
+        await message.reply("There are no movies or series available for trending.")
+        return
+
+    buttons = [[name['name']] for name in movie_series_names[:5]]  # Show first 5 names
+
+    spika = ReplyKeyboardMarkup(
+        buttons,
+        resize_keyboard=True
+    )
+    m = await message.reply_text("Please wait, fetching top trending...")
+    await m.delete()        
+    await message.reply("<b>Here is the top trending list 👇</b>", reply_markup=spika)
+
+# set trending list (movie/series names) for suggestion
+@Client.on_message(filters.command("setlist") & filters.private & filters.user(ADMINS))
+async def set_movie_series_names_command(client, message):
     try:
         command, *names = message.text.split(maxsplit=1)
     except ValueError:
-        await message.reply("Pʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ʟɪsᴛ ᴏғ ᴍᴏᴠɪᴇ ᴀɴᴅ sᴇʀɪᴇs ɴᴀᴍᴇs ᴀғᴛᴇʀ ᴛʜᴇ ᴄᴏᴍᴍᴀɴᴅ.")
+        await message.reply("Please provide a list of movie and series names after the command.")
         return
 
     if not names:
-        await message.reply("Pʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ʟɪsᴛ ᴏғ ᴍᴏᴠɪᴇ ᴀɴᴅ sᴇʀɪᴇs ɴᴀᴍᴇs ᴀғᴛᴇʀ ᴛʜᴇ ᴄᴏᴍᴍᴀɴᴅ.")
+        await message.reply("Please provide a list of movie and series names after the command.")
         return
 
     names_string = " ".join(names)
@@ -27,40 +86,17 @@ async def set_movie_series_names_command(client, message):
 
     await movie_series_db.set_movie_series_names(capitalized_names, 1)
 
-    await message.reply("Tʜᴇ ʟɪsᴛ ᴏғ ᴍᴏᴠɪᴇ ᴀɴᴅ sᴇʀɪᴇs ɴᴀᴍᴇs ғᴏʀ ᴛʜᴇ sᴜɢɢᴇsᴛɪᴏɴ ʜᴀs ʙᴇᴇɴ ᴜᴘᴅᴀᴛᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅")
+    await message.reply("The list of movie and series names for the suggestion has been updated successfully ✅")
 
+# get movie/series names and show them in a message
 @Client.on_message(filters.command("trendlist"))
 async def get_movie_series_names_command(client, message):
     current_names = await movie_series_db.get_movie_series_names(1)
 
     if current_names:
-        response = "<b><u>Cᴜʀʀᴇɴᴛ ʟɪsᴛ ᴏғ ᴛᴏᴘ ᴛʀᴇɴᴅɪɴɢ:</u></b>\n"
+        response = "<b><u>Current List of Top Trending:</u></b>\n"
         for i, name in enumerate(current_names, start=1):
             response += f"{i}. {name}\n"
         await message.reply(response.strip())
     else:
-        await message.reply("Tʜᴇ ʟɪsᴛ ᴏғ ᴛᴏᴘ ᴛʀᴇɴᴅɪɴɢ ғᴏʀ ʙᴜᴛᴛᴏɴs ᴀʀᴇ ᴇᴍᴘᴛʏ ❌")
-
-@Client.on_message(filters.command("clearlist") & filters.private & filters.user(ADMINS))
-async def clear_movie_series_names_command(client, message):
-    await movie_series_db.clear_movie_series_names(1)
-    await message.reply("Tʜᴇ ᴛᴏᴘ ᴛʀᴇɴᴅɪɴɢ ʟɪsᴛ ʜᴀs ʙᴇᴇɴ ᴄʟᴇᴀʀᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅")
-
-@Client.on_message(filters.command("trend"))
-async def trending_command(client, message):
-  
-    movie_series_names = await movie_series_db.get_movie_series_names(1)
-    
-    if not movie_series_names:
-        await message.reply("Tʜᴇʀᴇ ᴀʀᴇ ɴᴏ ᴍᴏᴠɪᴇ ᴏʀ sᴇʀɪᴇs ɴᴀᴍᴇs ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛʜᴇ ᴛᴏᴘ sᴇᴀʀᴄʜᴇs.")
-        return
-
-    buttons = [movie_series_names[i:i + 2] for i in range(0, len(movie_series_names), 2)]
-
-    spika = ReplyKeyboardMarkup(
-        buttons,
-        resize_keyboard=True
-    )
-    m=await message.reply_text("𝐏𝐥𝐞𝐚𝐬𝐞 𝐖𝐚𝐢𝐭, 𝐅𝐞𝐭𝐜𝐡𝐢𝐧𝐠 𝐓𝐨𝐩 𝐓𝐫𝐞𝐧𝐝𝐢𝐧𝐠...")
-    await m.delete()        
-    await message.reply("<b>Hᴇʀᴇ ɪꜱ ᴛʜᴇ ᴛᴏᴘ ᴛʀᴇɴᴅɪɴɢ ʟɪꜱᴛ 👇</b>", reply_markup=spika)
+        await message.reply("The list of top trending for buttons are empty ❌")
