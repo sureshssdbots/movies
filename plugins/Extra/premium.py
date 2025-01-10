@@ -163,3 +163,10 @@ async def plan(client, message):
     ]]
     await message.reply_photo(photo="https://graph.org/file/55a5392f88ec5a4bd3379.jpg", caption=script.PREPLANS_TXT.format(message.from_user.mention), reply_markup=InlineKeyboardMarkup(btn))
     
+@Client.on_message(filters.command("premium") & filters.private)
+async def send_premium_info(client, message):
+    user_name = message.from_user.first_name or "User"
+    await message.reply_text(
+        text=FREE_TXT.format(user_name),
+        reply_markup=BUTTONS
+    )
