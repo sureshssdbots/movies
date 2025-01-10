@@ -256,25 +256,37 @@ User - {}"""
 ➛ ᴜꜱᴇ /plan ᴛᴏ ꜱᴇᴇ ᴀʟʟ ᴏᴜʀ ᴘʟᴀɴꜱ ᴀᴛ ᴏɴᴄᴇ.
 ➛ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ ʙʏ ᴜꜱɪɴɢ : /myplan</b>"""
 
-    FREE_TXT = """<b>👋 ʜᴇʏ {}
-    
-<blockquote>🎖️ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʀᴇᴍɪᴜᴍ ᴘʟᴀɴꜱ :</blockquote>
+    from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+FREE_TXT = """<b>👋 Hey, {}!</b>
 
-10 ʀᴜᴘᴇᴇ ᴘᴇʀ 𝒘𝒆𝒆𝒌 👻
-39 ʀᴜᴘᴇᴇ𝒔 ғᴏʀ ᴏɴᴇ ᴍᴏɴᴛʜ 😚
-79 ʀᴜᴘᴇᴇ𝒔 ғᴏʀ ᴛᴡᴏ ᴍᴏɴᴛʜ𝒔 😗
+<blockquote>🎖️ <b>Available Premium Plans:</b></blockquote>
 
-🅄🄿🄸 🆔 👇
- <code>sureshjaat33772@okaxis</code> [ᴛᴀᴘ ᴛᴏ ᴄᴏᴘʏ]
- 
-⛽️ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ: /myplan
+<b>🔹 10 Rupees:</b> Per Week 👻  
+<b>🔹 39 Rupees:</b> For One Month 😚  
+<b>🔹 79 Rupees:</b> For Two Months 😗  
 
-🏷️ <a href='https://t.me/suresh_jaat_7'>ᴘʀᴇᴍɪᴜᴍ ᴘʀᴏᴏꜰ</a>
+<b>🅄🄿🄸 ID:</b>  
+<code>sureshjaat33772@okaxis</code> <i>[Tap to Copy]</i>
 
-‼️ ᴍᴜsᴛ sᴇɴᴅ sᴄʀᴇᴇɴsʜᴏᴛ ᴀғᴛᴇʀ ᴘᴀʏᴍᴇɴᴛ.
-‼️ ɢɪᴠᴇ ᴜꜱ ꜱᴏᴍᴇᴛɪᴍᴇ ᴛᴏ ᴀᴅᴅ ʏᴏᴜ ɪɴ ᴘʀᴇᴍɪᴜᴍ ʟɪꜱᴛ.
-</b>"""
+<b>⛽️ Check Your Active Plan:</b> /myplan  
+
+<b>🏷️ Premium Proof:</b>  
+<a href='https://t.me/suresh_jaat_7'>Click Here</a>
+
+<b>‼️ Important Notes:</b>  
+- Must send a screenshot after payment.  
+- Please allow some time to add you to the premium list.  
+
+<b>Thank you for choosing Premium!</b>
+"""
+
+BUTTONS = InlineKeyboardMarkup(
+    [[
+        InlineKeyboardButton("💳 Send Screenshot", url="https://t.me/suresh_jaat_7"),
+        InlineKeyboardButton("📊 View Plans", callback_data="view_plans")
+    ]]
+    )
 
     ADMIN_CMD_TXT = """<b><blockquote>
 -------------User Premium------------
