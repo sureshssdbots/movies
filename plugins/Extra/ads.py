@@ -1,4 +1,4 @@
-from pyrogram import Client, filters, enums
+from pyrogram import Client, filters
 from datetime import datetime, timedelta
 from database.config_db import mdb
 from database.users_chats_db import db
@@ -18,26 +18,27 @@ async def set_ads(client, message):
         ads_name = ads_name.strip()
         url = url.strip()
 
+        # Validate ad name length
         if len(ads_name) > 35:
             await message.reply_text(f"Advertisement name should not exceed 35 characters.")
             return
 
+        # Validate URL format
         if not re.match(r'https?://.+', url):
-            await message.reply_text(f"Invalid URL format. Use a valid Telegram link.")
+            await message.reply_text(f"Invalid URL format. Use a valid link.")
             return
 
         expiry_date = None
         impression_count = None
 
+        # Check if the provided duration or impression is valid
         if duration_or_impression[0] == 'd':
-           
             duration = duration_or_impression[1:]
             if not duration.isdigit():
                 await message.reply_text(f"Duration must be a number.")
                 return
             expiry_date = datetime.now() + timedelta(days=int(duration))
         elif duration_or_impression[0] == 'i':
-           
             impression = duration_or_impression[1:]
             if not impression.isdigit():
                 await message.reply_text(f"Impression count must be a number.")
@@ -47,15 +48,13 @@ async def set_ads(client, message):
             await message.reply_text(f"Invalid prefix. Use 'd' for duration and 'i' for impression count.")
             return
 
+        # Check if message is a reply and is a text message
         reply = message.reply_to_message
-        if not reply:
+        if not reply or not reply.text:
             await message.reply_text(f"Reply to a message to set it as your advertisement.")
             return
-        if not reply.text:
-            await message.reply_text(f"Only text messages are supported.")
-            return
 
-       
+        # Store advertisement and update database
         await mdb.update_advirtisment(reply.text, f"{ads_name}", expiry_date, impression_count)
         await db.jisshu_set_ads_link(url)
 
@@ -81,17 +80,11 @@ async def ads(_, message):
         await message.reply_text(f"An error occurred: {str(e)}")
 
 
-def checkIfLinkIsValid(link):
-    if re.match(r'^https?://(?:www\.)?\S+$', link):
-        return True
-    else:
-        return False
-
 @Client.on_message(filters.private & filters.command("del_ads") & filters.user(ADMINS))
 async def del_ads(client, message):
     try:
         await mdb.update_advirtisment()
-        
+
         current_link = await db.jisshu_get_ads_link()
         if current_link:
             is_deleted = await db.jisshu_del_ads_link()
@@ -102,4 +95,4 @@ async def del_ads(client, message):
         else:
             await message.reply("Advertisement reset. ads photo link not found!")
     except Exception as e:
-        await message.reply(f"An error occurred: {str(e)}")
+        await message.reply_text(f"An error occurred: {str(e)}")
