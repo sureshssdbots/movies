@@ -1660,3 +1660,89 @@ async def advantage_spell_chok(message):
         await message.delete()
     except:
         pass
+
+# Advanced Inline Search with Streaming Option
+@Client.on_inline_query()
+async def inline_stream(client, query):
+    results = []
+    files = await get_search_results(query.query)
+    
+    for file in files:
+        stream_link = f"https://t.me/{client.me.username}?start=stream#{file['file_id']}"
+        results.append(
+            InlineQueryResultArticle(
+                title=file["file_name"],
+                input_message_content=InputTextMessageContent(f"🎥 [Watch Online]({stream_link})"),
+                description="Click to stream the file.",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("🎥 Watch", url=stream_link)]
+                ])
+            )
+        )
+    await query.answer(results, cache_time=1)
+
+# Quiz Feature
+quiz_data = {
+    "question": "Which is the highest-grossing movie of all time?",
+    "options": ["Avatar", "Avengers: Endgame", "Titanic", "Star Wars"],
+    "answer": "Avatar"
+}
+
+@Client.on_message(filters.command("quiz"))
+async def start_quiz(client, message):
+    buttons = [
+        [InlineKeyboardButton(opt, callback_data=f"quiz#{opt}") for opt in quiz_data["options"]]
+    ]
+    await message.reply_text(quiz_data["question"], reply_markup=InlineKeyboardMarkup(buttons))
+
+@Client.on_callback_query(filters.regex(r"^quiz"))
+async def quiz_answer(client, query):
+    selected_answer = query.data.split("#")[1]
+    if selected_answer == quiz_data["answer"]:
+        await query.answer("Correct Answer! 🎉", show_alert=True)
+    else:
+        await query.answer("Wrong Answer! ❌", show_alert=True)
+
+@Client.on_message(filters.command("leaderboard"))
+async def leaderboard(client, message):
+    # Mock data
+    users = [{"name": "User1", "points": 150}, {"name": "User2", "points": 120}, {"name": "User3", "points": 100}]
+    leaderboard = "\n".join([f"{idx+1}. {user['name']} - {user['points']} points" for idx, user in enumerate(users)])
+    await message.reply_text(f"🏆 **Leaderboard:**\n\n{leaderboard}")
+
+
+user_themes = {}
+
+@Client.on_message(filters.command("theme"))
+async def change_theme(client, message):
+    user_id = message.from_user.id
+    buttons = [
+        [InlineKeyboardButton("🌙 Dark Mode", callback_data=f"theme#dark#{user_id}")],
+        [InlineKeyboardButton("☀️ Light Mode", callback_data=f"theme#light#{user_id}")]
+    ]
+    await message.reply_text("Choose your theme:", reply_markup=InlineKeyboardMarkup(buttons))
+
+@Client.on_callback_query(filters.regex(r"^theme#"))
+async def set_theme(client, query):
+    theme, user_id = query.data.split("#")[1], int(query.data.split("#")[2])
+    if query.from_user.id != user_id:
+        await query.answer("This option is not for you!", show_alert=True)
+        return
+    user_themes[user_id] = theme
+    await query.answer(f"Theme set to {theme.title()}!", show_alert=True)
+
+
+@Client.on_message(filters.command("request"))
+async def request_movie(client, message):
+    if len(message.text.split()) < 2:
+        await message.reply_text("❓ Usage: /request <movie_name>")
+        return
+    requested_movie = " ".join(message.text.split()[1:])
+    admin_id = ADMINS[0]
+    await client.send_message(
+        chat_id=admin_id,
+        text=f"🎥 New Movie Request:\n\nUser: {message.from_user.mention}\nMovie: {requested_movie}"
+    )
+    await message.reply_text("✅ Your request has been sent to the admin!")
+
+	
