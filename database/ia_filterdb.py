@@ -9,6 +9,10 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from marshmallow.exceptions import ValidationError
 from info import DATABASE_URI, DATABASE_NAME, COLLECTION_NAME, MAX_BTN
 
+# Set up logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 client = AsyncIOMotorClient(DATABASE_URI)
 mydb = client[DATABASE_NAME]
 instance = Instance.from_db(mydb)
@@ -28,26 +32,27 @@ class Media(Document):
         collection_name = COLLECTION_NAME
 
 async def get_files_db_size():
-    return (await mydb.command("dbstats"))['dataSize']
+    try:
+        stats = await mydb.command("dbstats")
+        return stats.get('dataSize', 0)
+    except Exception as e:
+        logger.error(f"Error getting DB stats: {e}")
+        return 0
 
 async def delete_duplicate_file(file_name):
-    """
-    Deletes duplicate movie entry based on file name.
-    """
+    """Deletes duplicate movie entry based on file name."""
     try:
         existing_file = await Media.find_one({'file_name': file_name})
         if existing_file:
             await existing_file.delete()
-            print(f"Duplicate file '{file_name}' deleted.")
-            return True  # Duplicate deleted
+            logger.info(f"Duplicate file '{file_name}' deleted.")
+            return True
     except Exception as e:
-        print(f"Error deleting duplicate file: {e}")
-    return False  # No duplicate found
+        logger.error(f"Error deleting duplicate file: {e}")
+    return False
 
 async def save_file(media):
-    """Save file in database"""
-
-    # TODO: Find better way to get same file_id for same media to avoid duplicates
+    """Save file in database."""
     file_id, file_ref = unpack_new_file_id(media.file_id)
     file_name = re.sub(r"(_|\-|\.|\+)", " ", str(media.file_name))
     
@@ -65,16 +70,16 @@ async def save_file(media):
             file_type=media.mime_type.split('/')[0]
         )
     except ValidationError:
-        print('Error occurred while saving file in database')
+        logger.error('Error occurred while saving file in database')
         return 'err'
     else:
         try:
             await file.commit()
-        except DuplicateKeyError:      
-            print(f'{getattr(media, "file_name", "NO_FILE")} is already saved in database') 
+        except DuplicateKeyError:
+            logger.warning(f'{getattr(media, "file_name", "NO_FILE")} is already saved in database') 
             return 'dup'
         else:
-            print(f'{getattr(media, "file_name", "NO_FILE")} is saved to database')
+            logger.info(f'{getattr(media, "file_name", "NO_FILE")} is saved to database')
             return 'suc'
 
 async def get_search_results(query, max_results=MAX_BTN, offset=0, lang=None):
@@ -85,10 +90,13 @@ async def get_search_results(query, max_results=MAX_BTN, offset=0, lang=None):
         raw_pattern = r'(\b|[\.\+\-_])' + query + r'(\b|[\.\+\-_])'
     else:
         raw_pattern = query.replace(' ', r'.*[\s\.\+\-_]') 
+    
     try:
         regex = re.compile(raw_pattern, flags=re.IGNORECASE)
-    except:
-        regex = query
+    except re.error as e:
+        logger.error(f"Invalid regex pattern: {e}")
+        return [], '', 0
+
     filter = {'file_name': regex}
     cursor = Media.find(filter)
     cursor.sort('$natural', -1)
@@ -100,6 +108,7 @@ async def get_search_results(query, max_results=MAX_BTN, offset=0, lang=None):
         if next_offset >= total_results:
             next_offset = ''
         return files, next_offset, total_results
+    
     cursor.skip(offset).limit(max_results)
     files = await cursor.to_list(length=max_results)
     total_results = await Media.count_documents(filter)
@@ -116,10 +125,13 @@ async def get_bad_files(query, file_type=None, offset=0, filter=False):
         raw_pattern = r'(\b|[\.\+\-_])' + query + r'(\b|[\.\+\-_])'
     else:
         raw_pattern = query.replace(' ', r'.*[\s\.\+\-_]')
+    
     try:
         regex = re.compile(raw_pattern, flags=re.IGNORECASE)
-    except:
+    except re.error as e:
+        logger.error(f"Invalid regex pattern: {e}")
         return []
+
     filter = {'file_name': regex}
     if file_type:
         filter['file_type'] = file_type
