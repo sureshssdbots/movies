@@ -341,12 +341,15 @@ User - {}"""
 </blockquote>
 Aᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴀɴᴅ ᴍᴀᴋᴇ ᴍᴇ ᴀᴅᴍɪɴ ᴀɴᴅ ᴜsᴇ ᴀʟʟ ғᴇᴀᴛᴜʀᴇs😇</b>"""
 
-    SOURCE_TXT = """<b>
-NOTE:
-- Create Your Bot ◉› :<blockquote><a href="https://t.me/suresh_jaat_7">SSD-𝗕𝗼𝘁</a></blockquote>
+    SOURCE_TXT = """<b>⚙️ NOTE:</b>
 
-developer : Suresh Jaat
-</b>""" 
+<b>➤ Create Your Own Bot:</b> 
+<a href="https://t.me/suresh_jaat_7">Click Here to Contact Developer</a>
+
+<b>👨‍💻 Developer:</b> <a href="https://t.me/suresh_jaat_7">Suresh Jaat</a>
+
+<b>🔗 Powered By:</b> SSD-𝗕𝗼𝘁
+"""
     GROUP_C_TEXT = """<b><blockquote>
  --------------Set Verify-------------
 /set_verify {website link} {website api}
