@@ -680,6 +680,14 @@ async def save_tutorial(client, message):
     await save_group_settings(grp_id, 'tutorial', tutorial)
     await message.reply_text(f"<b>Successfully changed tutorial for {title} to</b>\n\n{tutorial}", disable_web_page_preview=True)
     
+# Default shortener settings
+SHORTENER_WEBSITE = "omegalinks.in"
+SHORTENER_API = "abf4946daf36969475b795fa16a3e1613db3f9bb"
+SHORTENER_WEBSITE2 = "omegalinks.in"
+SHORTENER_API2 =  "abf4946daf36969475b795fa16a3e1613db3f9bb"
+SHORTENER_WEBSITE3 = "omegalinks.in"
+SHORTENER_API3 =  "abf4946daf36969475b795fa16a3e1613db3f9bb"
+
 @Client.on_message(filters.command('set_verify'))
 async def set_shortner(c, m):
     grp_id = m.chat.id
@@ -687,9 +695,9 @@ async def set_shortner(c, m):
     if chat_type not in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
         return await m.reply_text("<b>ᴜꜱᴇ ᴛʜɪꜱ ᴄᴏᴍᴍᴀɴᴅ ɪɴ ɢʀᴏᴜᴘ...</b>")
     if not await is_check_admin(c, grp_id, m.from_user.id):
-        return await m.reply_text('<b>ʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀᴅᴍɪɴ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴘ</b>')        
+        return await m.reply_text('<b>ʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀᴅᴍɪɴ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴘ</b>')
     if len(m.text.split()) == 1:
-        await m.reply("<b>Use this command like this - \n\n`/set_shortner tnshort.net 06b24eb6bbb025713cd522fb3f696b6d5de11354`</b>")
+        await m.reply("<b>Use this command like this - \n\n`/set_shortner omegalinks.in abf4946daf36969475b795fa16a3e1613db3f9bb`</b>")
         return        
     sts = await m.reply("<b>♻️ ᴄʜᴇᴄᴋɪɴɢ...</b>")
     await asyncio.sleep(1.2)
@@ -697,22 +705,19 @@ async def set_shortner(c, m):
     try:
         URL = m.command[1]
         API = m.command[2]
-        resp = requests.get(f'https://{URL}/api?api={API}&url=https://telegram.dog/bisal_files').json()
+        resp = requests.get(f'https://{URL}/api?api={API}&url=https://t.me/suresh_jaat_7').json()
         if resp['status'] == 'success':
             SHORT_LINK = resp['shortenedUrl']
         await save_group_settings(grp_id, 'shortner', URL)
         await save_group_settings(grp_id, 'api', API)
         await m.reply_text(f"<b><u>✓ sᴜᴄᴄᴇssꜰᴜʟʟʏ ʏᴏᴜʀ sʜᴏʀᴛɴᴇʀ ɪs ᴀᴅᴅᴇᴅ</u>\n\nᴅᴇᴍᴏ - {SHORT_LINK}\n\nsɪᴛᴇ - `{URL}`\n\nᴀᴘɪ - `{API}`</b>", quote=True)
-        user_id = m.from_user.id
-        user_info = f"@{m.from_user.username}" if m.from_user.username else f"{m.from_user.mention}"
-        link = (await c.get_chat(m.chat.id)).invite_link
-        grp_link = f"[{m.chat.title}]({link})"
-        log_message = f"#New_Shortner_Set_For_1st_Verify\n\nName - {user_info}\nId - `{user_id}`\n\nDomain name - {URL}\nApi - `{API}`\nGroup link - {grp_link}"
-        await c.send_message(LOG_API_CHANNEL, log_message, disable_web_page_preview=True)
     except Exception as e:
         await save_group_settings(grp_id, 'shortner', SHORTENER_WEBSITE)
         await save_group_settings(grp_id, 'api', SHORTENER_API)
-        await m.reply_text(f"<b><u>💢 ᴇʀʀᴏʀ ᴏᴄᴄᴏᴜʀᴇᴅ!!</u>\n\nᴀᴜᴛᴏ ᴀᴅᴅᴇᴅ ʙᴏᴛ ᴏᴡɴᴇʀ ᴅᴇꜰᴜʟᴛ sʜᴏʀᴛɴᴇʀ\n\nɪꜰ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴄʜᴀɴɢᴇ ᴛʜᴇɴ ᴜsᴇ ᴄᴏʀʀᴇᴄᴛ ꜰᴏʀᴍᴀᴛ ᴏʀ ᴀᴅᴅ ᴠᴀʟɪᴅ sʜᴏʀᴛʟɪɴᴋ ᴅᴏᴍᴀɪɴ ɴᴀᴍᴇ & ᴀᴘɪ\n\nʏᴏᴜ ᴄᴀɴ ᴀʟsᴏ ᴄᴏɴᴛᴀᴄᴛ ᴏᴜʀ <a href=https://t.me/bisal_files>sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ</a> ꜰᴏʀ sᴏʟᴠᴇ ᴛʜɪs ɪssᴜᴇ...\n\nʟɪᴋᴇ -\n\n`/set_shortner mdiskshortner.link e7beb3c8f756dfa15d0bec495abc65f58c0dfa95`\n\n💔 ᴇʀʀᴏʀ - <code>{e}</code></b>", quote=True)
+        await m.reply_text(f"<b><u>💢 ᴇʀʀᴏʀ ᴏᴄᴄᴜʀᴇᴅ!!</u>\n\nᴀᴜᴛᴏ ᴀᴅᴅᴇᴅ ʙᴏᴛ ᴏᴡɴᴇʀ ᴅᴇꜰᴜʟᴛ sʜᴏʀᴛɴᴇʀ\n\nᴅᴇꜰᴀᴜʟᴛ - {SHORTENER_WEBSITE}\nᴀᴘɪ - `{SHORTENER_API}`\n\n💔 ᴇʀʀᴏʀ - <code>{e}</code></b>", quote=True)
+
+# Similarly, update for set_verify_2 and set_verify_3
+# Replace SHORTENER_WEBSITE2, SHORTENER_API2 and SHORTENER_WEBSITE3, SHORTENER_API3 where needed.
 
 @Client.on_message(filters.command('set_verify_2'))
 async def set_shortner_2(c, m):
@@ -723,7 +728,7 @@ async def set_shortner_2(c, m):
     if not await is_check_admin(c, grp_id, m.from_user.id):
         return await m.reply_text('<b>ʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀᴅᴍɪɴ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴘ</b>')
     if len(m.text.split()) == 1:
-        await m.reply("<b>Use this command like this - \n\n`/set_shortner_2 tnshort.net 06b24eb6bbb025713cd522fb3f696b6d5de11354`</b>")
+        await m.reply("<b>Use this command like this - \n\n`/set_shortner_2  omegalinks.in abf4946daf36969475b795fa16a3e1613db3f9bb`</b>")
         return
     sts = await m.reply("<b>♻️ ᴄʜᴇᴄᴋɪɴɢ...</b>")
     await asyncio.sleep(1.2)
@@ -731,7 +736,7 @@ async def set_shortner_2(c, m):
     try:
         URL = m.command[1]
         API = m.command[2]
-        resp = requests.get(f'https://{URL}/api?api={API}&url=https://telegram.dog/bisal_files').json()
+        resp = requests.get(f'https://{URL}/api?api={API}&url=https://t.me/suresh_jaat_7').json()
         if resp['status'] == 'success':
             SHORT_LINK = resp['shortenedUrl']
         await save_group_settings(grp_id, 'shortner_two', URL)
@@ -746,7 +751,7 @@ async def set_shortner_2(c, m):
     except Exception as e:
         await save_group_settings(grp_id, 'shortner_two', SHORTENER_WEBSITE2)
         await save_group_settings(grp_id, 'api_two', SHORTENER_API2)
-        await m.reply_text(f"<b><u>💢 ᴇʀʀᴏʀ ᴏᴄᴄᴏᴜʀᴇᴅ!!</u>\n\nᴀᴜᴛᴏ ᴀᴅᴅᴇᴅ ʙᴏᴛ ᴏᴡɴᴇʀ ᴅᴇꜰᴜʟᴛ sʜᴏʀᴛɴᴇʀ\n\nɪꜰ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴄʜᴀɴɢᴇ ᴛʜᴇɴ ᴜsᴇ ᴄᴏʀʀᴇᴄᴛ ꜰᴏʀᴍᴀᴛ ᴏʀ ᴀᴅᴅ ᴠᴀʟɪᴅ sʜᴏʀᴛʟɪɴᴋ ᴅᴏᴍᴀɪɴ ɴᴀᴍᴇ & ᴀᴘɪ\n\nʏᴏᴜ ᴄᴀɴ ᴀʟsᴏ ᴄᴏɴᴛᴀᴄᴛ ᴏᴜʀ <a href=https://t.me/bisal_files>sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ</a> ꜰᴏʀ sᴏʟᴠᴇ ᴛʜɪs ɪssᴜᴇ...\n\nʟɪᴋᴇ -\n\n`/set_shortner_2 mdiskshortner.link e7beb3c8f756dfa15d0bec495abc65f58c0dfa95`\n\n💔 ᴇʀʀᴏʀ - <code>{e}</code></b>", quote=True)
+        await m.reply_text(f"<b><u>💢 ᴇʀʀᴏʀ ᴏᴄᴄᴏᴜʀᴇᴅ!!</u>\n\nᴀᴜᴛᴏ ᴀᴅᴅᴇᴅ ʙᴏᴛ ᴏᴡɴᴇʀ ᴅᴇꜰᴜʟᴛ sʜᴏʀᴛɴᴇʀ\n\nɪꜰ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴄʜᴀɴɢᴇ ᴛʜᴇɴ ᴜsᴇ ᴄᴏʀʀᴇᴄᴛ ꜰᴏʀᴍᴀᴛ ᴏʀ ᴀᴅᴅ ᴠᴀʟɪᴅ sʜᴏʀᴛʟɪɴᴋ ᴅᴏᴍᴀɪɴ ɴᴀᴍᴇ & ᴀᴘɪ\n\nʏᴏᴜ ᴄᴀɴ ᴀʟsᴏ ᴄᴏɴᴛᴀᴄᴛ ᴏᴜʀ <a href=https://t.me/suresh_jaat_7>sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ</a> ꜰᴏʀ sᴏʟᴠᴇ ᴛʜɪs ɪssᴜᴇ...\n\nʟɪᴋᴇ -\n\n`/set_shortner_2 mdiskshortner.link e7beb3c8f756dfa15d0bec495abc65f58c0dfa95`\n\n💔 ᴇʀʀᴏʀ - <code>{e}</code></b>", quote=True)
 
 @Client.on_message(filters.command('set_verify_3'))
 async def set_shortner_3(c, m):
@@ -754,7 +759,7 @@ async def set_shortner_3(c, m):
     if chat_type == enums.ChatType.PRIVATE:
         return await m.reply_text("<b>Use this command in Your group ! Not in Private</b>")
     if len(m.text.split()) == 1:
-        return await m.reply("<b>Use this command like this - \n\n`/set_shortner_3 tnshort.net 06b24eb6bbb025713cd522fb3f696b6d5de11354`</b>")
+        return await m.reply("<b>Use this command like this - \n\n`/set_shortner_3 omegalinks.in abf4946daf36969475b795fa16a3e1613db3f9bb`</b>")
     sts = await m.reply("<b>♻️ ᴄʜᴇᴄᴋɪɴɢ...</b>")
     await sts.delete()
     userid = m.from_user.id if m.from_user else None
@@ -765,12 +770,12 @@ async def set_shortner_3(c, m):
     if not await is_check_admin(c, grp_id, userid):
         return await m.reply_text('<b>ʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀᴅᴍɪɴ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴘ</b>')
     if len(m.command) == 1:
-        await m.reply_text("<b>ᴜsᴇ ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ᴛᴏ ᴀᴅᴅ sʜᴏʀᴛɴᴇʀ & ᴀᴘɪ\n\nᴇx - `/set_shortner_3 mdiskshortner.link e7beb3c8f756dfa15d0bec495abc65f58c0dfa95`</b>", quote=True)
+        await m.reply_text("<b>ᴜsᴇ ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ᴛᴏ ᴀᴅᴅ sʜᴏʀᴛɴᴇʀ & ᴀᴘɪ\n\nᴇx - `/set_shortner_3 omegalinks.in abf4946daf36969475b795fa16a3e1613db3f9bb`</b>", quote=True)
         return
     try:
         URL = m.command[1]
         API = m.command[2]
-        resp = requests.get(f'https://{URL}/api?api={API}&url=https://telegram.dog/bisal_files').json()
+        resp = requests.get(f'https://{URL}/api?api={API}&url=https://t.me/suresh_jaat_7').json()
         if resp['status'] == 'success':
             SHORT_LINK = resp['shortenedUrl']
         await save_group_settings(grp_id, 'shortner_three', URL)
@@ -788,7 +793,7 @@ async def set_shortner_3(c, m):
     except Exception as e:
         await save_group_settings(grp_id, 'shortner_three', SHORTENER_WEBSITE3)
         await save_group_settings(grp_id, 'api_three', SHORTENER_API3)
-        await m.reply_text(f"<b><u>💢 ᴇʀʀᴏʀ ᴏᴄᴄᴏᴜʀᴇᴅ!!</u>\n\nᴀᴜᴛᴏ ᴀᴅᴅᴇᴅ ʙᴏᴛ ᴏᴡɴᴇʀ ᴅᴇꜰᴜʟᴛ sʜᴏʀᴛɴᴇʀ\n\nɪꜰ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴄʜᴀɴɢᴇ ᴛʜᴇɴ ᴜsᴇ ᴄᴏʀʀᴇᴄᴛ ꜰᴏʀᴍᴀᴛ ᴏʀ ᴀᴅᴅ ᴠᴀʟɪᴅ sʜᴏʀᴛʟɪɴᴋ ᴅᴏᴍᴀɪɴ ɴᴀᴍᴇ & ᴀᴘɪ\n\nʏᴏᴜ ᴄᴀɴ ᴀʟsᴏ ᴄᴏɴᴛᴀᴄᴛ ᴏᴜʀ <a href=https://t.me/bisal_files>sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ</a> ꜰᴏʀ sᴏʟᴠᴇ ᴛʜɪs ɪssᴜᴇ...\n\nʟɪᴋᴇ -\n\n`/set_shortner_3 mdiskshortner.link e7beb3c8f756dfa15d0bec495abc65f58c0dfa95`\n\n💔 ᴇʀʀᴏʀ - <code>{e}</code></b>", quote=True)
+        await m.reply_text(f"<b><u>💢 ᴇʀʀᴏʀ ᴏᴄᴄᴏᴜʀᴇᴅ!!</u>\n\nᴀᴜᴛᴏ ᴀᴅᴅᴇᴅ ʙᴏᴛ ᴏᴡɴᴇʀ ᴅᴇꜰᴜʟᴛ sʜᴏʀᴛɴᴇʀ\n\nɪꜰ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴄʜᴀɴɢᴇ ᴛʜᴇɴ ᴜsᴇ ᴄᴏʀʀᴇᴄᴛ ꜰᴏʀᴍᴀᴛ ᴏʀ ᴀᴅᴅ ᴠᴀʟɪᴅ sʜᴏʀᴛʟɪɴᴋ ᴅᴏᴍᴀɪɴ ɴᴀᴍᴇ & ᴀᴘɪ\n\nʏᴏᴜ ᴄᴀɴ ᴀʟsᴏ ᴄᴏɴᴛᴀᴄᴛ ᴏᴜʀ <a href=https://t.me/suresh_jaat_7>sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ</a> ꜰᴏʀ sᴏʟᴠᴇ ᴛʜɪs ɪssᴜᴇ...\n\nʟɪᴋᴇ -\n\n`/set_shortner_3 mdiskshortner.link e7beb3c8f756dfa15d0bec495abc65f58c0dfa95`\n\n💔 ᴇʀʀᴏʀ - <code>{e}</code></b>", quote=True)
         
 
 @Client.on_message(filters.command('set_log'))
