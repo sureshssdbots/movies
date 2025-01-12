@@ -1065,24 +1065,3 @@ async def verifyon(bot, message):
 
 
 
-from pyrogram import Client, filters
-from pyrogram.types import Message
-from Script import Script  # Script से स्वागत संदेश इंपोर्ट करें
-
-# नए चैट सदस्य का स्वागत
-@Client.on_message(filters.new_chat_members)
-async def welcome_new_member(client, message: Message):
-    new_member = message.new_chat_members[0]
-    
-    # अगर सदस्य बॉट है तो स्वागत न करें
-    if new_member.is_bot:
-        return  # बॉट को छोड़ दें
-    
-    group_name = message.chat.title  # ग्रुप का नाम प्राप्त करें
-    user_name = new_member.first_name  # नए सदस्य का नाम प्राप्त करें
-    
-    # Script से स्वागत संदेश
-    welcome_text = Script.START_TXT.format(user_name, group_name)
-    
-    # स्वागत संदेश भेजें
-    await message.reply(welcome_text, parse_mode="HTML")
