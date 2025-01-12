@@ -1067,7 +1067,7 @@ async def verifyon(bot, message):
 
 from pyrogram import Client, filters
 from pyrogram.types import Message
-from script import Script  # Script से स्वागत संदेश इंपोर्ट करें
+from Script import Script  # Script से स्वागत संदेश इंपोर्ट करें
 
 # नए चैट सदस्य का स्वागत
 @Client.on_message(filters.new_chat_members)
