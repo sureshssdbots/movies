@@ -41,52 +41,34 @@
             color: #3b82f6;
         }
 
-        .main-content {
+        section {
+            padding: 60px 20px;
             text-align: center;
-            padding: 50px 20px;
         }
 
-        .main-content video {
-            margin: 20px auto;
-            border: 5px solid #3b82f6;
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background-color: #1f2937;
             border-radius: 10px;
+            padding: 20px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         }
 
-        .btn-group button {
-            margin: 10px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
+        .feature-card h4 {
+            font-size: 1.2rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            color: #3b82f6;
+            margin-bottom: 10px;
         }
 
-        .btn-download {
-            background-color: #3b82f6;
-            color: white;
-        }
-
-        .btn-download:hover {
-            background-color: #2563eb;
-        }
-
-        .btn-copy {
-            background-color: #10b981;
-            color: white;
-        }
-
-        .btn-copy:hover {
-            background-color: #059669;
-        }
-
-        .btn-player {
-            background-color: #f59e0b;
-            color: white;
-        }
-
-        .btn-player:hover {
-            background-color: #d97706;
+        .feature-card p {
+            color: #9ca3af;
         }
 
         footer {
@@ -116,27 +98,94 @@
         <h3>File Stream Bot</h3>
         <div>
             <a href="#main">Home</a>
-            <a href="#about">About</a>
-            <a href="#channels">Channels</a>
+            <a href="#features">Features</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="#faq">FAQ</a>
+            <a href="#contact">Contact</a>
         </div>
     </nav>
 
-    <div class="main-content" id="main">
-        <video width="600" controls>
-            <source src="{{file_url}}" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        <h4 class="mt-4 text-lg font-bold">File Name: {{file_name}}</h4>
-        <p class="text-gray-300">File Size: {{file_size}}</p>
-        <div class="btn-group mt-6">
-            <button class="btn-download" onclick="streamDownload()">Download Video</button>
-            <button class="btn-copy" onclick="copyStreamLink()">Copy Link</button>
-            <button class="btn-player" onclick="vlc_player()">Watch in VLC</button>
+    <!-- Main Section -->
+    <section id="main">
+        <h1 class="text-4xl font-bold">Welcome to File Stream Bot</h1>
+        <p class="mt-4 text-lg text-gray-300">
+            Stream and Download Movies or Series Directly on Telegram.
+        </p>
+        <div class="main-content mt-6">
+            <video width="600" controls>
+                <source src="{{file_url}}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <h4 class="mt-4 text-lg font-bold">File Name: {{file_name}}</h4>
+            <p class="text-gray-300">File Size: {{file_size}}</p>
+            <div class="btn-group mt-6">
+                <button class="btn-download" onclick="streamDownload()">Download Video</button>
+                <button class="btn-copy" onclick="copyStreamLink()">Copy Link</button>
+                <button class="btn-player" onclick="vlc_player()">Watch in VLC</button>
+            </div>
         </div>
-    </div>
+    </section>
 
+    <!-- Features Section -->
+    <section id="features">
+        <h2 class="text-3xl font-bold">Why Choose Us?</h2>
+        <div class="features">
+            <div class="feature-card">
+                <h4>High Quality Streaming</h4>
+                <p>Enjoy your favorite movies and series in HD quality without buffering.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Fast Downloads</h4>
+                <p>Download files at lightning speed with just one click.</p>
+            </div>
+            <div class="feature-card">
+                <h4>Multi-Platform Support</h4>
+                <p>Compatible with VLC, MX Player, and more for your convenience.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials">
+        <h2 class="text-3xl font-bold">What Our Users Say</h2>
+        <div class="features">
+            <div class="feature-card">
+                <p>"This bot is amazing! The streaming quality is top-notch!"</p>
+                <h4>- User 1</h4>
+            </div>
+            <div class="feature-card">
+                <p>"Super fast downloads and an intuitive interface. Highly recommended."</p>
+                <h4>- User 2</h4>
+            </div>
+            <div class="feature-card">
+                <p>"I love how easy it is to use this bot. The best Telegram bot ever!"</p>
+                <h4>- User 3</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq">
+        <h2 class="text-3xl font-bold">Frequently Asked Questions</h2>
+        <div class="features">
+            <div class="feature-card">
+                <h4>Is this bot free to use?</h4>
+                <p>Yes, this bot is completely free for all users.</p>
+            </div>
+            <div class="feature-card">
+                <h4>What formats are supported?</h4>
+                <p>We support MP4, MKV, and AVI formats.</p>
+            </div>
+            <div class="feature-card">
+                <h4>How do I contact support?</h4>
+                <p>You can contact us via Telegram by clicking the Contact button below.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
     <footer>
         <h5>Copyright © 2024 <a href="https://t.me/YourProfile">Your Name</a>. All Rights Reserved.</h5>
     </footer>
 </body>
-                </html>
+        </html>
