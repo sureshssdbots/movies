@@ -19,7 +19,6 @@ from utils import formate_file_name,  get_settings, save_group_settings, is_req_
 import re
 from pyrogram import Client, filters, enums
 import random
-from pyrogram import Client, enums
 import base64
 from info import *
 import traceback
@@ -40,26 +39,7 @@ async def invite(client, message):
         print(f'Error while generating invite link : {e}\nFor chat:{toGenInvLink}')
         await message.reply(f'Error while generating invite link : {e}\nFor chat:{toGenInvLink}')
 
-
-
-# 2. New User Welcome Message
-@Client.on_chat_member_updated()
-async def new_user_welcome(bot, message):
-    if message.new_chat_member:
-        new_user = message.new_chat_member
-        grpid = message.chat.id
-        
-        # Check if verification is enabled
-        is_verified = await check_verify_status(grpid)  # Ensure that check_verify_status() function exists
-
-        if is_verified:
-            welcome_message = f"Welcome {new_user.full_name} to the group! Please verify yourself."
-        else:
-            welcome_message = f"Welcome {new_user.full_name} to the group! Verification is currently disabled."
-
-        # Send the welcome message to the new user
-        await message.chat.send_message(welcome_message)
-        
+   
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client:Client, message):
     await message.react(emoji=random.choice(REACTIONS), big=True)
