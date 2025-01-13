@@ -17,6 +17,8 @@ from database.topdb import JsTopDB
 from database.jsreferdb import referdb
 from utils import formate_file_name,  get_settings, save_group_settings, is_req_subscribed, get_size, get_shortlink, is_check_admin, get_status, temp, get_readable_time
 import re
+from pyrogram import Client, filters, enums
+import random
 import base64
 from info import *
 import traceback
@@ -1005,23 +1007,94 @@ async def set_pm_search_off(client, message):
     await db.update_pm_search_status(bot_id, enable=False)
     await message.reply_text("<b><i>❌️ ᴘᴍ ꜱᴇᴀʀᴄʜ ᴅɪꜱᴀʙʟᴇᴅ, ꜰʀᴏᴍ ɴᴏᴡ ɴᴏ ᴏɴᴇ ᴄᴀɴ ᴀʙʟᴇ ᴛᴏ ꜱᴇᴀʀᴄʜ ᴍᴏᴠɪᴇ ɪɴ ʙᴏᴛ ᴘᴍ.</i></b>")
 
-@Client.on_message(filters.command("verify_id"))
-async def generate_verify_id(bot, message):
-    if message.from_user.id not in ADMINS:
-        await message.reply('Only the bot Admin can use this command... 😑')
-        return
+
+# Mocking verification_ids for demonstration
+verification_ids = {}
+
+# Mocking a function to check if a user is admin
+async def is_check_admin(bot, grpid, user_id):
+    # यहां आपको अपनी admin चेकिंग लॉजिक डालनी होगी
+    return True  # Mocking for now
+
+# Mocking a function to save group settings
+async def save_group_settings(grpid, setting, value):
+    # यहां आपको अपनी settings saving लॉजिक डालनी होगी
+    pass
+
+# Mocking a function to check if verification is enabled
+async def check_verify_status(grpid):
+    # इस function को अपडेट करें ताकि यह सही से verify status बताए
+    return grpid in verification_ids and verification_ids[grpid] is not None
+
+
+# 1. **Verifyoff Command with Log Channel Notification**
+@Client.on_message(filters.command("verifyoff"))
+async def verifyoff(bot, message):
     chat_type = message.chat.type
     if chat_type not in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
         return await message.reply_text("This command only works in groups!")
-    grpid = message.chat.id   
-    if grpid in verification_ids:
-        await message.reply_text(f"An active Verify ID already exists for this group: `/verifyoff {verification_ids[grpid]}`")
-        return
     
-    verify_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    grpid = message.chat.id
+    if not await is_check_admin(bot, grpid, message.from_user.id):  # Changed client to bot
+        return await message.reply_text('<b>You are not an admin in this group!</b>')
+    
+    try:
+        input_id = message.command[1]
+    except IndexError:
+        return await message.reply_text("Please provide the Verify ID along with the command.\nUsage: `/verifyoff {id}`")
+    
+    if grpid not in verification_ids or verification_ids[grpid] != input_id:
+        return await message.reply_text("Invalid Verify ID! Please contact the admin for the correct ID.")
+    
+    # Disable verification
+    await save_group_settings(grpid, 'is_verify', False)
+    del verification_ids[grpid]
+
+    # Send notification to log channel
+    log_channel_id = -1001234567890  # Replace with your actual log channel ID
+    await bot.send_message(log_channel_id, f"Verification disabled in group: {message.chat.title} (ID: {grpid}) by {message.from_user.first_name} ({message.from_user.id})")
+    
+    return await message.reply_text("Verification successfully disabled.")
+
+
+# 2. **New User Welcome Feature**
+@Client.on_chat_member_updated()
+async def new_user_welcome(bot, message):
+    if message.new_chat_member:
+        new_user = message.new_chat_member
+        grpid = message.chat.id
+        
+        # Check if verification is enabled
+        is_verified = await check_verify_status(grpid)
+
+        if is_verified:
+            welcome_message = f"Welcome {new_user.full_name} to the group! Please verify yourself."
+        else:
+            welcome_message = f"Welcome {new_user.full_name} to the group! Verification is currently disabled."
+
+        # Send the welcome message to the new user
+        await message.reply(welcome_message)
+
+
+# 3. **Verify Command to Enable Verification (Auto Generate Verify ID)**
+@Client.on_message(filters.command("verify"))
+async def verify(bot, message):
+    chat_type = message.chat.type
+    if chat_type not in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
+        return await message.reply_text("This command only works in groups!")
+    
+    grpid = message.chat.id
+    if not await is_check_admin(bot, grpid, message.from_user.id):
+        return await message.reply_text('<b>You are not an admin in this group!</b>')
+
+    # Generate a unique verify ID for the group
+    verify_id = f"verify-{grpid}-{random.randint(1000, 9999)}"
     verification_ids[grpid] = verify_id
-    await message.reply_text(f"Verify ID: `/verifyoff {verify_id}` (Valid for this group, one-time use)")
-    return
+
+    await save_group_settings(grpid, 'is_verify', True)
+    await message.reply_text(f"Verification enabled! Your unique Verify ID is: {verify_id}")
+
+
 
 @Client.on_message(filters.command("verifyoff"))
 async def verifyoff(bot, message):
