@@ -670,22 +670,97 @@ async def delete_files(bot, message):
     if not_found_files:
         await message.reply_text(f'<b>Files not found in the database - <code>{", ".join(not_found_files)}</code></b>')
 
-@Client.on_message(filters.command('set_caption'))
-async def save_caption(client, message):
-    grp_id = message.chat.id
-    title = message.chat.title
-    if not await is_check_admin(client, grp_id, message.from_user.id):
-        return await message.reply_text('<b>ʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀᴅᴍɪɴ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴘ</b>')
+# Step 1: Save Template, Image URL, and Buttons
+@Client.on_message(filters.command('set_template'))
+async def save_template(client, message):
     chat_type = message.chat.type
     if chat_type not in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
         return await message.reply_text("<b>ᴜꜱᴇ ᴛʜɪꜱ ᴄᴏᴍᴍᴀɴᴅ ɪɴ ɢʀᴏᴜᴘ...</b>")
-    try:
-        caption = message.text.split(" ", 1)[1]
-    except:
-        return await message.reply_text("Command Incomplete!")
-    await save_group_settings(grp_id, 'caption', caption)
-    await message.reply_text(f"Successfully changed caption for {title} to\n\n{caption}", disable_web_page_preview=True) 
     
+    grp_id = message.chat.id
+    title = message.chat.title
+    
+    if not await is_check_admin(client, grp_id, message.from_user.id):
+        return await message.reply_text('<b>ʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀᴅᴍɪɴ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴘ</b>')
+    
+    try:
+        command_parts = message.text.split("\n", 2)  # मल्टीलाइन कमांड के लिए
+        if len(command_parts) < 3:
+            raise ValueError("Incomplete command")
+
+        # Extract template, image URL, and button text
+        template = command_parts[1].strip()  # Template
+        image_url = command_parts[2].strip()  # Image URL
+        
+        # Extract button data
+        button_lines = command_parts[3:]
+        buttons = []
+        for line in button_lines:
+            button_text, button_url = line.split(" | ", 1)
+            buttons.append(InlineKeyboardButton(f"📎 {button_text.strip()}", url=button_url.strip()))
+        
+        # Adjust layout to have buttons in two columns
+        button_layout = [
+            buttons[i:i + 2] for i in range(0, len(buttons), 2)
+        ]
+        reply_markup = InlineKeyboardMarkup(button_layout) if buttons else None
+
+    except ValueError:
+        return await message.reply_text(
+            "Command Incomplete! Provide template, image URL, and buttons:\n\n"
+            "`/set_template`\n"
+            "`Welcome {user_name} to {group_name}`\n"
+            "`https://example.com/welcome.jpg`\n"
+            "`Button Text | URL`\n"
+            "`Another Button | Another URL`",
+            disable_web_page_preview=True
+        )
+    
+    # Save settings in the database
+    await save_group_settings(grp_id, 'template', template)
+    await save_group_settings(grp_id, 'image_url', image_url)
+    await save_group_settings(grp_id, 'buttons', button_layout)
+
+    await message.reply_text(
+        f"Successfully updated the template for {title}:\n\n"
+        f"**Template:**\n{template}\n\n"
+        f"**Image URL:**\n{image_url}\n\n"
+        f"**Buttons:**\n{len(buttons)} added",
+        disable_web_page_preview=True
+    )
+
+# Step 2: Send Welcome Message
+@Client.on_chat_member_updated()
+async def new_user_welcome(client, event):
+    if event.new_chat_member:  # नया यूज़र जॉइन करता है
+        new_user = event.new_chat_member.user
+        grp_id = event.chat.id
+        
+        # डेटाबेस से ग्रुप सेटिंग्स प्राप्त करें
+        template = await get_group_settings(grp_id, 'template') or "Welcome {user_name}!"
+        image_url = await get_group_settings(grp_id, 'image_url') or None
+        buttons = await get_group_settings(grp_id, 'buttons') or []
+        reply_markup = InlineKeyboardMarkup(buttons) if buttons else None
+
+        # मैसेज बनाएं
+        welcome_message = template.format(user_name=new_user.first_name, group_name=event.chat.title)
+        
+        # मैसेज और इमेज भेजें
+        if image_url:
+            await client.send_photo(
+                chat_id=grp_id,
+                photo=image_url,
+                caption=welcome_message,
+                reply_markup=reply_markup
+            )
+        else:
+            await client.send_message(
+                chat_id=grp_id,
+                text=welcome_message,
+                reply_markup=reply_markup
+            )
+
+
 @Client.on_message(filters.command('set_tutorial'))
 async def save_tutorial(client, message):
     grp_id = message.chat.id
