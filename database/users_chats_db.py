@@ -8,7 +8,7 @@ mydb = client[DATABASE_NAME]
 fsubs = client['fsubs']
 class Database:
     default = SETTINGS.copy()
-    def init(self):
+    def __init__(self):
         self.col = mydb.users
         self.grp = mydb.groups
         self.misc = mydb.misc
@@ -30,8 +30,8 @@ class Database:
                 is_banned=False,
                 ban_reason=""
             )
-)
-    
+        )
+
     async def get_settings(self, id):
         chat = await self.grp.find_one({'id':int(id)})
         if chat:
@@ -403,4 +403,5 @@ class Database:
                 return None
         return await self.movies_update_channel.update_one({} , {'$set': {'id': id}} , upsert=True)
 db = Database()
-
+      
+    
