@@ -1,90 +1,69 @@
-
 import datetime
 import pytz
 from motor.motor_asyncio import AsyncIOMotorClient
 from telebot import TeleBot
-from info import (DATABASE_NAME, DATABASE_URI, SETTINGS, LOG_VR_CHANNEL)
+from info import DATABASE_NAME, DATABASE_URI, BOT_TOKEN, UPDATE_CHANNEL_ID
+
+# MOVIES_UPDATE_TXT को script.py में परिभाषित करना
+MOVIES_UPDATE_TXT = """<b>#𝑵𝒆𝒘_𝑭𝒊𝒍𝒆_𝑨𝒅𝒅𝒆𝒅 ✅
+🍿 <b>Title:</b> {title}
+🎃 <b>Genres:</b> {genres}
+📆 <b>Year:</b> {year}
+⭐ <b>Rating:</b> {rating} / 10
+</b>"""
 
 # MongoDB क्लाइंट सेटअप
 client = AsyncIOMotorClient(DATABASE_URI)
 mydb = client[DATABASE_NAME]
-fsubs = client['fsubs']
-
-# Telegram बॉट सेटअप
-BOT_TOKEN = "your_bot_token"  # अपना बॉट टोकन यहां डालें
-UPDATE_CHANNEL_ID = -100XXXXXXXXXX  # चैनल ID
-bot = TeleBot(BOT_TOKEN)
 
 class Database:
-    default = SETTINGS.copy()
-
     def __init__(self):
         # डेटाबेस कलेक्शन इनीशियलाइज़ेशन
-        self.col = mydb.users
-        self.grp = mydb.groups
-        self.misc = mydb.misc
-        self.verify_id = mydb.verify_id
-        self.users = mydb.uersz
-        self.req = mydb.requests
-        self.mGrp = mydb.mGrp
-        self.pmMode = mydb.pmMode
-        self.jisshu_ads_link = mydb.jisshu_ads_link
-        self.grp_and_ids = fsubs.grp_and_ids
         self.movies_update_channel = mydb.movies_update_channel
-        self.botcol = mydb.botcol
 
-    def new_user(self, id, name):
-        # उपयोगकर्ता प्रोफ़ाइल बनाना
-        return dict(
-            id=id,
-            name=name,
-            point=0,
-            ban_status=dict(
-                is_banned=False,
-                ban_reason=""
-            )
-        )
-
-    def add_movie(self, movie_name, release_year, language):
+    def add_movie(self, title, genres, year, rating):
         # मूवी विवरण डेटाबेस में जोड़ें
         movie_data = {
-            "name": movie_name,
-            "year": release_year,
-            "language": language,
+            "title": title,
+            "genres": genres,
+            "year": year,
+            "rating": rating,
             "added_on": datetime.datetime.now(pytz.UTC)
         }
         self.movies_update_channel.insert_one(movie_data)
-        print(f"Movie added to database: {movie_name}")
+        print(f"Movie added to database: {title}")
 
         # चैनल पर अपडेट भेजें
-        self.send_update_to_channel(movie_name, release_year, language)
+        self.send_update_to_channel(title, genres, year, rating)
 
-    def send_update_to_channel(self, movie_name, release_year, language):
-        # चैनल को अपडेट भेजना
-        message = (
-            f"🎬 **New Movie Added**\n\n"
-            f"🎥 **Name:** {movie_name}\n"
-            f"📅 **Year:** {release_year}\n"
-            f"🗣 **Language:** {language}\n\n"
-            f"Enjoy watching! 🚀"
+    def send_update_to_channel(self, title, genres, year, rating):
+        # MOVIES_UPDATE_TXT से मैसेज बनाना
+        message = MOVIES_UPDATE_TXT.format(
+            title=title,
+            genres=genres,
+            year=year,
+            rating=rating
         )
         try:
-            bot.send_message(chat_id=UPDATE_CHANNEL_ID, text=message, parse_mode="Markdown")
+            bot.send_message(chat_id=UPDATE_CHANNEL_ID, text=message, parse_mode="HTML")
             print("Update sent to channel!")
         except Exception as e:
             print(f"Error sending update to channel: {e}")
+
+# Telegram बॉट सेटअप
+bot = TeleBot(BOT_TOKEN)
 
 # स्क्रिप्ट का उपयोग
 if __name__ == "__main__":
     db = Database()
 
     # एक नई मूवी जोड़ने का उदाहरण
-    db.add_movie("Inception", 2010, "English")
-
-    # नया उपयोगकर्ता जोड़ने का उदाहरण
-    new_user = db.new_user(123456789, "John Doe")
-    db.col.insert_one(new_user)
-    print("New user added:", new_user)
+    db.add_movie(
+        title="Inception",
+        genres="Sci-Fi, Thriller",
+        year=2010,
+        rating=8.8
+)
 
     
     async def get_settings(self, id):
