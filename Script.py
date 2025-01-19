@@ -125,8 +125,8 @@ User - {}"""
     OLD_ALRT_TXT = """ʏᴏᴜ ᴀʀᴇ ᴜsɪɴɢ ᴍʏ ᴏʟᴅ ᴍᴇssᴀɢᴇs..sᴇɴᴅ ᴀ ɴᴇᴡ ʀᴇǫᴜᴇsᴛ.."""
 
     NO_RESULT_TXT = """<b>ᴛʜɪs ᴍᴇssᴀɢᴇ ɪs ɴᴏᴛ ʀᴇʟᴇᴀsᴇᴅ ᴏʀ ᴀᴅᴅᴇᴅ ɪɴ ᴍʏ ᴅᴀᴛᴀʙᴀsᴇ 🙄</b>"""
-    <b> ᴏʀ ᴋʏᴏᴜ ᴡᴏ ʀᴇǫᴜᴇsᴛ ᴇxᴘᴇᴄᴛ ᴋɪʏᴀ:</b>
-<a href="https://t.me/YOUR_BOT_USERNAME?start=request">📝 Send Your Request</a>"""
+    <b>ᴏʀ ʏᴏᴜ ᴄᴀɴ ꜱᴇɴᴅ ᴀ ʀᴇǫᴜᴇꜱᴛ:</b>
+<a href="https://t.me/ssd_movies_providerbot?start=REQUEST"> Send Your Request</a>"""
 
     I_CUDNT = """🤧 𝗛𝗲𝗹𝗹𝗼 {}
 
