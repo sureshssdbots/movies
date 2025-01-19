@@ -1,121 +1,137 @@
 from pyrogram import Client, filters
-from pyrogram.errors import FloodWait
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 import asyncio
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+import time
 from database.users_chats_db import db
 from utils import temp, get_readable_time
+from info import ADMINS
 
 lock = asyncio.Lock()
 
+# Set admin ID
+ADMINS = [6151975257]  # आपने जो admin ID दी है
 
+# Cancel Broadcast
+@Client.on_callback_query(filters.regex(r'^broadcast_cancel'))
+async def broadcast_cancel(bot, query):
+    _, ident = query.data.split("#")
+    if ident == 'users':
+        temp.USERS_CANCEL = True
+        await query.message.edit("❌ Users Broadcast Cancelled!")
+    elif ident == 'groups':
+        temp.GROUPS_CANCEL = True
+        await query.message.edit("❌ Groups Broadcast Cancelled!")
+
+# Broadcast to Users
 @Client.on_message(filters.command("broadcast") & filters.user(ADMINS) & filters.reply)
 async def broadcast_users(bot, message):
-    if lock.locked():
-        return await message.reply("A broadcast is already in progress. Please wait until it's completed.")
-    
-    # Broadcast को Pin करने का विकल्प
-    p_msg = await message.reply("<b>Do you want to pin this message for users?</b>", reply_markup=ReplyKeyboardMarkup([['Yes', 'No']], one_time_keyboard=True, resize_keyboard=True))
-    user_response = await bot.listen(chat_id=message.chat.id, user_id=message.from_user.id)
-    is_pin = user_response.text.lower() == "yes"
-    await p_msg.delete()
-    
-    users = await db.get_all_users()
-    total_users = len(users)
-    start_time = asyncio.get_running_loop().time()
-    success, failed, done = 0, 0, 0
+    try:
+        if lock.locked():
+            return await message.reply("🔒 A broadcast is already in progress. Please wait.")
 
-    status_message = await message.reply(f"<b>Broadcasting message to users...</b>")
+        p = await message.reply("Do you want to pin this message for users?", 
+                                 reply_markup=ReplyKeyboardMarkup([['Yes', 'No']], one_time_keyboard=True, resize_keyboard=True))
+        msg = await bot.listen(message.chat.id, message.from_user.id)
+        is_pin = msg.text.lower() == 'yes'
+        await p.delete()
 
-    async with lock:
-        for user in users:
-            try:
+        users = await db.get_all_users()
+        if not users:
+            return await message.reply("No users found in the database.")
+
+        b_msg = message.reply_to_message
+        if not b_msg:
+            return await message.reply("Please reply to a message to broadcast.")
+
+        b_sts = await message.reply_text("⏳ Starting broadcast to users...")
+
+        start_time = time.time()
+        total_users = await db.total_users_count()
+        done, success, failed = 0, 0, 0
+
+        async with lock:
+            async for user in users:
                 if temp.USERS_CANCEL:
                     temp.USERS_CANCEL = False
-                    await status_message.edit(
-                        f"Broadcast canceled!\n\nTotal Users: <code>{total_users}</code>\nCompleted: <code>{done}</code>\nSuccess: <code>{success}</code>\nFailed: <code>{failed}</code>"
-                    )
+                    await b_sts.edit(f"❌ Users broadcast cancelled!\nCompleted: {done}/{total_users}")
                     return
-                
-                # संदेश भेजने की कोशिश
-                await bot.copy_message(
-                    chat_id=int(user["id"]),
-                    from_chat_id=message.chat.id,
-                    message_id=message.reply_to_message.message_id
-                )
-                success += 1
-            except FloodWait as e:
-                await asyncio.sleep(e.value)
-            except Exception as e:
-                failed += 1
-            
-            done += 1
-            if done % 20 == 0:  # हर 20 संदेशों के बाद अपडेट करें
-                await status_message.edit(
-                    f"Broadcast in progress...\n\nTotal Users: <code>{total_users}</code>\nCompleted: <code>{done}</code>\nSuccess: <code>{success}</code>\nFailed: <code>{failed}</code>",
-                    reply_markup=InlineKeyboardMarkup(
-                        [[InlineKeyboardButton("CANCEL", callback_data="broadcast_cancel#users")]]
-                    )
-                )
 
-        total_time = get_readable_time(asyncio.get_running_loop().time() - start_time)
-        await status_message.edit(
-            f"Broadcast completed in {total_time}.\n\nTotal Users: <code>{total_users}</code>\nCompleted: <code>{done}</code>\nSuccess: <code>{success}</code>\nFailed: <code>{failed}</code>"
-        )
+                try:
+                    await bot.send_message(user['id'], b_msg.text, disable_notification=True)
+                    if is_pin:
+                        await bot.pin_chat_message(user['id'], b_msg.id)
+                    success += 1
+                except Exception as e:
+                    failed += 1
+                    print(f"Error sending message to {user['id']}: {e}")
+                done += 1
 
+                if done % 20 == 0:
+                    btn = [[InlineKeyboardButton("CANCEL", callback_data="broadcast_cancel#users")]]
+                    await b_sts.edit(f"📤 Broadcasting to users...\nCompleted: {done}/{total_users}\nSuccess: {success}\nFailed: {failed}", 
+                                     reply_markup=InlineKeyboardMarkup(btn))
 
+            time_taken = get_readable_time(time.time() - start_time)
+            await b_sts.edit(f"✅ Users broadcast completed!\nTime: {time_taken}\nTotal: {total_users}\nSuccess: {success}\nFailed: {failed}")
+
+    except Exception as e:
+        print(f"Error during broadcast to users: {e}")
+
+# Broadcast to Groups
 @Client.on_message(filters.command("grp_broadcast") & filters.user(ADMINS) & filters.reply)
 async def broadcast_groups(bot, message):
-    if lock.locked():
-        return await message.reply("A broadcast is already in progress. Please wait until it's completed.")
-    
-    # Broadcast को Pin करने का विकल्प
-    p_msg = await message.reply("<b>Do you want to pin this message for groups?</b>", reply_markup=ReplyKeyboardMarkup([['Yes', 'No']], one_time_keyboard=True, resize_keyboard=True))
-    user_response = await bot.listen(chat_id=message.chat.id, user_id=message.from_user.id)
-    is_pin = user_response.text.lower() == "yes"
-    await p_msg.delete()
-    
-    groups = await db.get_all_chats()
-    total_groups = len(groups)
-    start_time = asyncio.get_running_loop().time()
-    success, failed, done = 0, 0, 0
+    try:
+        p = await message.reply("Do you want to pin this message for groups?", 
+                                 reply_markup=ReplyKeyboardMarkup([['Yes', 'No']], one_time_keyboard=True, resize_keyboard=True))
+        msg = await bot.listen(message.chat.id, message.from_user.id)
+        is_pin = msg.text.lower() == 'yes'
+        await p.delete()
 
-    status_message = await message.reply(f"<b>Broadcasting message to groups...</b>")
+        groups = await db.get_all_chats()
+        if not groups:
+            return await message.reply("No groups found in the database.")
 
-    async with lock:
-        for group in groups:
-            try:
+        b_msg = message.reply_to_message
+        if not b_msg:
+            return await message.reply("Please reply to a message to broadcast.")
+
+        b_sts = await message.reply_text("⏳ Starting broadcast to groups...")
+
+        start_time = time.time()
+        total_groups = await db.total_chat_count()
+        done, success, failed = 0, 0, 0
+
+        async with lock:
+            async for group in groups:
                 if temp.GROUPS_CANCEL:
                     temp.GROUPS_CANCEL = False
-                    await status_message.edit(
-                        f"Broadcast canceled!\n\nTotal Groups: <code>{total_groups}</code>\nCompleted: <code>{done}</code>\nSuccess: <code>{success}</code>\nFailed: <code>{failed}</code>"
-                    )
+                    await b_sts.edit(f"❌ Groups broadcast cancelled!\nCompleted: {done}/{total_groups}")
                     return
-                
-                # संदेश भेजने की कोशिश
-                await bot.copy_message(
-                    chat_id=int(group["id"]),
-                    from_chat_id=message.chat.id,
-                    message_id=message.reply_to_message.message_id
-                )
-                success += 1
-            except FloodWait as e:
-                await asyncio.sleep(e.value)
-            except Exception as e:
-                failed += 1
-            
-            done += 1
-            if done % 20 == 0:  # हर 20 संदेशों के बाद अपडेट करें
-                await status_message.edit(
-                    f"Broadcast in progress...\n\nTotal Groups: <code>{total_groups}</code>\nCompleted: <code>{done}</code>\nSuccess: <code>{success}</code>\nFailed: <code>{failed}</code>",
-                    reply_markup=InlineKeyboardMarkup(
-                        [[InlineKeyboardButton("CANCEL", callback_data="broadcast_cancel#groups")]]
-                    )
-                )
 
-        total_time = get_readable_time(asyncio.get_running_loop().time() - start_time)
-        await status_message.edit(
-            f"Broadcast completed in {total_time}.\n\nTotal Groups: <code>{total_groups}</code>\nCompleted: <code>{done}</code>\nSuccess: <code>{success}</code>\nFailed: <code>{failed}</code>"
-)
-                
+                try:
+                    await bot.send_message(group['id'], b_msg.text, disable_notification=True)
+                    if is_pin:
+                        await bot.pin_chat_message(group['id'], b_msg.id)
+                    success += 1
+                except Exception as e:
+                    failed += 1
+                    print(f"Error sending message to {group['id']}: {e}")
+                done += 1
+
+                if done % 20 == 0:
+                    btn = [[InlineKeyboardButton("CANCEL", callback_data="broadcast_cancel#groups")]]
+                    await b_sts.edit(f"📤 Broadcasting to groups...\nCompleted: {done}/{total_groups}\nSuccess: {success}\nFailed: {failed}", 
+                                     reply_markup=InlineKeyboardMarkup(btn))
+
+            time_taken = get_readable_time(time.time() - start_time)
+            await b_sts.edit(f"✅ Groups broadcast completed!\nTime: {time_taken}\nTotal: {total_groups}\nSuccess: {success}\nFailed: {failed}")
+
+    except Exception as e:
+        print(f"Error during broadcast to groups: {e}")
+
+
+
+
+
 
 
