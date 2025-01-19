@@ -569,6 +569,24 @@ async def send_request(bot, message):
     ]]
     await message.reply_text("<b>✅ sᴜᴄᴄᴇꜱꜱғᴜʟʟʏ ʏᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ʜᴀꜱ ʙᴇᴇɴ ᴀᴅᴅᴇᴅ, ᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ ꜱᴏᴍᴇᴛɪᴍᴇ...</b>", reply_markup=InlineKeyboardMarkup(btn))
 
+# Request भेजने के बाद एक्शन लेने के लिए callback query handler
+@Client.on_callback_query()
+async def handle_callback(client, callback_query):
+    # अगर callback_data 'show_options' है
+    if callback_query.data.startswith("show_options"):
+        # इसे विभाजित कर के डेटा प्राप्त करें
+        _, user_id, message_id = callback_query.data.split('#')
+        
+        # यहां पर आप और भी कार्य कर सकते हैं, जैसे यूज़र के लिए ऑप्शन दिखाना
+        await callback_query.answer(f"Options for message ID: {message_id} - User ID: {user_id}")
+        
+        # 'सेंट रिक्वेस्ट' बटन पर क्लिक होने पर क्या करना है, यह आपके अनुसार तय करें।
+        await callback_query.answer("आपकी रिक्वेस्ट की जानकारी दिखाई जा रही है...")
+        
+    # अन्य callback queries के लिए आप अलग से हैंडलिंग कर सकते हैं
+    else:
+        pass
+
 @Client.on_message(filters.command("search"))
 async def search_files(bot, message):
     if message.from_user.id not in ADMINS:
