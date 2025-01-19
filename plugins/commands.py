@@ -569,23 +569,6 @@ async def send_request(bot, message):
     ]]
     await message.reply_text("<b>✅ sᴜᴄᴄᴇꜱꜱғᴜʟʟʏ ʏᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ʜᴀꜱ ʙᴇᴇɴ ᴀᴅᴅᴇᴅ, ᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ ꜱᴏᴍᴇᴛɪᴍᴇ...</b>", reply_markup=InlineKeyboardMarkup(btn))
 
-@Client.on_callback_query(filters.regex('send_request'))
-async def handle_send_request(client, callback_query):
-    # Callback query में 'send_request' को पहचानते हुए यूज़र के डेटा को प्रोसेस करें
-    user_id = callback_query.from_user.id
-    message_id = callback_query.message.message_id
-
-    # यूज़र से रिक्वेस्ट लेने के लिए एक नई प्रक्रिया शुरू करें
-    await callback_query.answer("Your request is being processed...")
-
-    # यूज़र को मैसेज भेजें, जिसमें रिक्वेस्ट भेजने का ऑप्शन हो
-    await client.send_message(user_id, "Please type your request:")
-
-    # और एक confirmation मैसेज भेजें
-    buttons = [[
-        InlineKeyboardButton("📩 Send Request", callback_data=f"process_request#{user_id}#{message_id}")
-    ]]
-    await callback_query.edit_message_text("Your request is being processed. Type your message below:", reply_markup=InlineKeyboardMarkup(buttons))
 
 @Client.on_message(filters.command("search"))
 async def search_files(bot, message):
