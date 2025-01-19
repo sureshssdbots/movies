@@ -1636,9 +1636,6 @@ async def advantage_spell_chok(message):
         button = [[
             InlineKeyboardButton("🔍 ᴄʜᴇᴄᴋ sᴘᴇʟʟɪɴɢ ᴏɴ ɢᴏᴏɢʟᴇ 🔍", url=f"https://www.google.com/search?q={google}")
         ]]
-    button = [
-        [InlineKeyboardButton("📩 सेंट रिक्वेस्ट", callback_data="send_request")]
-    ]
     k = await message.reply(
         script.I_CUDNT.format(message.from_user.mention),
         reply_markup=InlineKeyboardMarkup(button)
