@@ -569,23 +569,23 @@ async def send_request(bot, message):
     ]]
     await message.reply_text("<b>✅ sᴜᴄᴄᴇꜱꜱғᴜʟʟʏ ʏᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ ʜᴀꜱ ʙᴇᴇɴ ᴀᴅᴅᴇᴅ, ᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ ꜱᴏᴍᴇᴛɪᴍᴇ...</b>", reply_markup=InlineKeyboardMarkup(btn))
 
-# Request भेजने के बाद एक्शन लेने के लिए callback query handler
-@Client.on_callback_query()
-async def handle_callback(client, callback_query):
-    # अगर callback_data 'show_options' है
-    if callback_query.data.startswith("show_options"):
-        # इसे विभाजित कर के डेटा प्राप्त करें
-        _, user_id, message_id = callback_query.data.split('#')
-        
-        # यहां पर आप और भी कार्य कर सकते हैं, जैसे यूज़र के लिए ऑप्शन दिखाना
-        await callback_query.answer(f"Options for message ID: {message_id} - User ID: {user_id}")
-        
-        # 'सेंट रिक्वेस्ट' बटन पर क्लिक होने पर क्या करना है, यह आपके अनुसार तय करें।
-        await callback_query.answer("आपकी रिक्वेस्ट की जानकारी दिखाई जा रही है...")
-        
-    # अन्य callback queries के लिए आप अलग से हैंडलिंग कर सकते हैं
-    else:
-        pass
+@Client.on_callback_query(filters.regex('send_request'))
+async def handle_send_request(client, callback_query):
+    # Callback query में 'send_request' को पहचानते हुए यूज़र के डेटा को प्रोसेस करें
+    user_id = callback_query.from_user.id
+    message_id = callback_query.message.message_id
+
+    # यूज़र से रिक्वेस्ट लेने के लिए एक नई प्रक्रिया शुरू करें
+    await callback_query.answer("Your request is being processed...")
+
+    # यूज़र को मैसेज भेजें, जिसमें रिक्वेस्ट भेजने का ऑप्शन हो
+    await client.send_message(user_id, "Please type your request:")
+
+    # और एक confirmation मैसेज भेजें
+    buttons = [[
+        InlineKeyboardButton("📩 Send Request", callback_data=f"process_request#{user_id}#{message_id}")
+    ]]
+    await callback_query.edit_message_text("Your request is being processed. Type your message below:", reply_markup=InlineKeyboardMarkup(buttons))
 
 @Client.on_message(filters.command("search"))
 async def search_files(bot, message):
