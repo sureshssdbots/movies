@@ -66,11 +66,12 @@ async def send_movie_updates(bot, file_name: str, file_id: str):
         if not poster_url or not caption:
             await bot.send_message(LOG_CHANNEL, f"Poster or caption missing for file: {file_name}")
             return
-btn = [
-    [InlineKeyboardButton('🎥 Get File', url=f'https://t.me/{temp.U_NAME}?start={file_name}')]
-]
-reply_markup = InlineKeyboardMarkup(btn)
-        
+            
+            btn = [
+            [InlineKeyboardButton('🎥 Get File', url=f'https://t.me/{temp.U_NAME}?start=pm_mode_file_{ADMINS[0]}_{file_id}')]
+        ]
+        reply_markup = InlineKeyboardMarkup(btn)
+
 
         movie_update_channel = await db.movies_update_channel_id()
         target_channel = movie_update_channel if movie_update_channel else MOVIE_UPDATE_CHANNEL
