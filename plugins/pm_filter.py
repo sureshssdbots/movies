@@ -1636,12 +1636,12 @@ async def advantage_spell_chok(message):
         button = [[
             InlineKeyboardButton("🔍 ᴄʜᴇᴄᴋ sᴘᴇʟʟɪɴɢ ᴏɴ ɢᴏᴏɢʟᴇ 🔍", url=f"https://www.google.com/search?q={google}")
         ]]
+    button = [
+        [InlineKeyboardButton("📩 सेंट रिक्वेस्ट", callback_data="send_request")]
+    ]
     k = await message.reply(
         script.I_CUDNT.format(message.from_user.mention),
         reply_markup=InlineKeyboardMarkup(button)
-	    button = [
-        [InlineKeyboardButton("📩 सेंट रिक्वेस्ट", callback_data="send_request")]
-    ]
     )
     await asyncio.sleep(60)
     await k.delete()
@@ -1649,7 +1649,7 @@ async def advantage_spell_chok(message):
         await message.delete()
     except:
         pass
-    return	
+    return
     user = message.from_user.id if message.from_user else 0
     buttons = [[
         InlineKeyboardButton(text=movie.get('title'), callback_data=f"spol#{movie.movieID}#{user}")
