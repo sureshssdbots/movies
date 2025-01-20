@@ -127,18 +127,25 @@ User - {}"""
     NO_RESULT_TXT = """<b>ᴛʜɪs ᴍᴇssᴀɢᴇ ɪs ɴᴏᴛ ʀᴇʟᴇᴀsᴇᴅ ᴏʀ ᴀᴅᴅᴇᴅ ɪɴ ᴍʏ ᴅᴀᴛᴀʙᴀsᴇ 🙄</b>"""
     <b>ᴏʀ ʏᴏᴜ ᴄᴀɴ ꜱᴇɴᴅ ᴀ ʀᴇǫᴜᴇꜱᴛ:</b>
 <a href="https://t.me/ssd_movies_providerbot?start=REQUEST"> Send Your Request</a>"""
-
+    
     I_CUDNT = """🤧 𝗛𝗲𝗹𝗹𝗼 {}
 
 I 𝗰𝗼𝘂𝗹𝗱𝗻'𝘁 𝗳𝗶𝗻𝗱 𝗮𝗻𝘆 𝗺𝗼𝘃𝗶𝗲 𝗼𝗿 𝘀𝗲𝗿𝗶𝗲𝘀 𝗶𝗻 𝘁𝗵𝗮𝘁 𝗻𝗮𝗺𝗲.. 😐"""
+<b>ᴏʀ ʏᴏᴜ ᴄᴀɴ ꜱᴇɴᴅ ᴀ ʀᴇǫᴜᴇꜱᴛ:</b>
+<a href="https://t.me/ssd_movies_providerbot?start=REQUEST"> Send Your Request</a>"""
 
     I_CUD_NT = """😑 𝗛𝗲𝗹𝗹𝗼 {}
 
 𝗜 𝗰𝗼𝘂𝗹𝗱𝗻'𝘁 𝗳𝗶𝗻𝗱 𝗮𝗻𝘆𝘁𝗵𝗶𝗻𝗴 𝗿𝗲𝗹𝗮𝘁𝗲𝗱 𝘁𝗼 𝘁𝗵𝗮𝘁 😞... 𝗰𝗵𝗲𝗰𝗸 𝘆𝗼𝘂𝗿 𝘀𝗽𝗲𝗹𝗹𝗶𝗻𝗴."""
-    
+<b>ᴏʀ ʏᴏᴜ ᴄᴀɴ ꜱᴇɴᴅ ᴀ ʀᴇǫᴜᴇꜱᴛ:</b>
+<a href="https://t.me/ssd_movies_providerbot?start=REQUEST"> Send Your Request</a>"""
+
     CUDNT_FND = """🤧 𝗛𝗲𝗹𝗹𝗼 {}
 
 𝗜 𝗰𝗼𝘂𝗹𝗱𝗻'𝘁 𝗳𝗶𝗻𝗱 𝗮𝗻𝘆𝘁𝗵𝗶𝗻𝗴 𝗿𝗲𝗹𝗮𝘁𝗲𝗱 𝘁𝗼 𝘁𝗵𝗮𝘁 𝗱𝗶𝗱 𝘆𝗼𝘂 𝗺𝗲𝗮𝗻 𝗮𝗻𝘆 𝗼𝗻𝗲 𝗼𝗳 𝘁𝗵𝗲𝘀𝗲 ?? 👇"""
+<b>ᴏʀ ʏᴏᴜ ᴄᴀɴ ꜱᴇɴᴅ ᴀ ʀᴇǫᴜᴇꜱᴛ:</b>
+<a href="https://t.me/ssd_movies_providerbot?start=REQUEST"> Send Your Request</a>"""
+
     
     FONT_TXT= """<b>ʏᴏᴜ ᴄᴀɴ ᴜsᴇ ᴛʜɪs ᴍᴏᴅᴇ ᴛᴏ ᴄʜᴀɴɢᴇ ʏᴏᴜʀ ꜰᴏɴᴛs sᴛʏʟᴇ, ᴊᴜsᴛ sᴇɴᴅ ᴍᴇ ʟɪᴋᴇ ᴛʜɪs ꜰᴏʀᴍᴀᴛ
 
