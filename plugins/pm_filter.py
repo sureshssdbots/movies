@@ -775,8 +775,10 @@ async def cb_handler(client: Client, query: CallbackQuery):
         file_id=file_id
         )
         fileName = quote_plus(get_name(log_msg))
-        online = f"{URL}watch/{log_msg.id}/{fileName}?hash={get_hash(log_msg)}"
-        download = f"{URL}{log_msg.id}/{fileName}?hash={get_hash(log_msg)}"
+		online = f"{URL}watch/{log_msg.id}/{fileName}?hash={get_hash(log_msg)}"
+        download = f"{URL}dl/{log_msg.id}/{fileName}?hash={get_hash(log_msg)}"
+        #online = f"{URL}watch/{log_msg.id}/{fileName}?hash={get_hash(log_msg)}"
+        #download = f"{URL}{log_msg.id}/{fileName}?hash={get_hash(log_msg)}"
         btn = [[
             InlineKeyboardButton("ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ", url=online),
             InlineKeyboardButton("ꜰᴀsᴛ ᴅᴏᴡɴʟᴏᴀᴅ", url=download)
@@ -1749,3 +1751,4 @@ async def request_movie(client, message):
     await message.reply_text("✅ Your request has been sent to the admin!")
 
 	
+
